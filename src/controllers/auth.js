@@ -57,4 +57,20 @@ const signin = (req, res, next) => {
   })(req, res, next);
 };
 
-module.exports = { signup, signin };
+/**
+ * Signs out a user
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @param {express.NextFunction} next
+ */
+const signout = (req, res) => {
+  // If the user is already signed in, prevent them from signing up
+  if (req.isUnauthenticated())
+    return res.status(403).json({ message: 'User is not signed in' });
+
+  // Sign out the user
+  req.logout();
+  res.status(200).json({ message: 'Signed out' });
+};
+
+module.exports = { signup, signin, signout };
