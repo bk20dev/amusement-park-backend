@@ -11,6 +11,7 @@ const connect = require('./db/connect');
 
 // Import routes
 const auth = require('./routes/auth');
+const api = require('./routes/api');
 
 // Configure Passport.js
 require('./auth/passport');
@@ -29,6 +30,7 @@ app.use(passport.session());
 
 // Add routes
 app.use(auth);
+app.use(api);
 
 // Connect to the database
 // and start the server

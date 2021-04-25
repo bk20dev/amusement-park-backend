@@ -10,7 +10,7 @@ const passport = require('passport');
 const signup = (req, res, next) => {
   // If the user is already signed in, prevent them from signing up
   if (req.isAuthenticated())
-    return res.status(403).json({ message: 'User is already signed in' });
+    return res.status(403).json({ message: 'Already signed in' });
 
   // Register the user
   passport.authenticate('signup', { session: false }, (error, user, info) => {
@@ -35,18 +35,18 @@ const signup = (req, res, next) => {
 const signin = (req, res, next) => {
   // If the user is already signed in, prevent them from signing up
   if (req.isAuthenticated())
-    return res.status(403).json({ message: 'User is already signed in' });
+    return res.status(403).json({ message: 'Already signed in' });
 
-  // Login the user
+  // Sign in the user
   passport.authenticate('signin', (error, user, info) => {
     // If there is a server error, pass it to the next middleware
     if (error) return next(error);
 
-    // Login the user
+    // Sign in the user
     if (user)
       return req.login(user, (error) => {
         if (error) next(error);
-        else res.status(200).json({ message: 'Logged in' });
+        else res.status(200).json({ message: 'Signed in' });
       });
 
     // If the user has not been found or credentials are missing
@@ -65,8 +65,7 @@ const signin = (req, res, next) => {
  */
 const signout = (req, res) => {
   // If the user is already signed in, prevent them from signing up
-  if (req.isUnauthenticated())
-    return res.status(403).json({ message: 'User is not signed in' });
+  if (req.isUnauthenticated()) return res.status(403).json({ message: 'Not signed in' });
 
   // Sign out the user
   req.logout();

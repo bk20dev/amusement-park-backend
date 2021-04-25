@@ -14,7 +14,7 @@ const validate = async (email, password, name) => {
   // Check if given email is already taken
   if (regex.email.test(email)) {
     const exists = await User.exists({ email });
-    if (exists) messages.push('This email is already taken.');
+    if (exists) messages.push('Email is already taken.');
   }
 
   // Validate user
@@ -25,7 +25,7 @@ const validate = async (email, password, name) => {
 
   if (fields.length) {
     // Create validation error message
-    const message = `Validation failed for \`${fields.join('`, `')}\``;
+    const message = `Validation failed for \`${fields.join('`, `')}\`.`;
     messages.push(message);
   }
 
