@@ -2,9 +2,7 @@ const LocalStrategy = require('passport-local');
 const User = require('../models/user');
 const validate = require('../validation/user');
 
-/**
- * Signup strategy
- */
+/** Signup strategy */
 const signup = new LocalStrategy(
   { usernameField: 'email', passReqToCallback: true },
   async (req, email, password, done) => {

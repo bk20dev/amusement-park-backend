@@ -26,4 +26,35 @@ const signup = (req, res, next) => {
   })(req, res, next);
 };
 
-module.exports = { signup };
+/**
+ * Signs in a user
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @param {express.NextFunction} next
+ */
+const signin = (req, res, next) => {
+  // If the user is already signed in, prevent them from signing up
+  if (req.isAuthenticated())
+    return res.status(403).json({ message: 'User is already signed in' });
+
+  // Login the user
+  passport.authenticate('signin', (error, user, info) => {
+    // If there is a server error, pass it to the next middleware
+    if (error) return next(error);
+
+    // Login the user
+    if (user)
+      return req.login(user, (error) => {
+        if (error) next(error);
+        else res.status(200).json({ message: 'Logged in' });
+      });
+
+    // If the user has not been found or credentials are missing
+    const status = info.notFound ? 404 : 400;
+    const message = info.message;
+
+    res.status(status).json({ message });
+  })(req, res, next);
+};
+
+module.exports = { signup, signin };

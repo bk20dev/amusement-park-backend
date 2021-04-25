@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+
 const regex = require('../validation/regex');
 
 const userSchema = mongoose.Schema({
@@ -21,13 +22,13 @@ const userSchema = mongoose.Schema({
   },
 });
 
-userSchema.pre('save', async function (next) {
-  this.password = await bcrypt.hashSync(this.password, 6);
+userSchema.pre('save', function (next) {
+  this.password = bcrypt.hashSync(this.password, 6);
   next();
 });
 
-userSchema.methods.isPasswordCorrect = async function (password) {
-  return await bcrypt.compareSync(password, this.password);
+userSchema.methods.isPasswordCorrect = function (password) {
+  return bcrypt.compareSync(password, this.password);
 };
 
 const user = mongoose.model('users', userSchema);
