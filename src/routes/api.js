@@ -1,9 +1,8 @@
 const express = require('express');
-const authenticated = require('../middleware/authenticated');
+const map = require('./api/map');
 
 const router = express.Router();
 
-router.get('/public', (req, res) => res.send('Hello!'));
-router.get('/user', authenticated, (req, res) => res.send(`Hello, ${req.user.name}!`));
+router.use('/map', map);
 
 module.exports = router;
