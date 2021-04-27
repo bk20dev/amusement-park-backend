@@ -25,7 +25,7 @@ const validate = async (email, password, name) => {
 
   if (fields.length) {
     // Create validation error message
-    const message = `Validation failed for \`${fields.join('`, `')}\`.`;
+    const message = `Validation failed for \`${fields.join('`, `')}\``;
     messages.push(message);
   }
 
