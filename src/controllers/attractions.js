@@ -68,7 +68,7 @@ class AttractionsController {
     // Check for validation errors
     if (validation?.errors) {
       const fields = Object.keys(validation.errors);
-      const message = `Validation failed for \`${fields.join('`, `')}\`.`;
+      const message = `Validation failed for \`${fields.join('`, `')}\``;
       return res.status(400).json({ message });
     }
 
@@ -79,6 +79,47 @@ class AttractionsController {
         message: 'Attraction created',
         attraction: attractionReducer(saved._doc),
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Updates an attraction
+   * @param {express.Request} req
+   * @param {express.Response} res
+   * @param {express.NextFunction} next
+   */
+  static async update(req, res, next) {
+    const id = req.params.id;
+
+    // Validate object id
+    if (!mongoose.isValidObjectId(id))
+      return res.status(400).json({ message: 'Invalid ObjectId' });
+
+    try {
+      // Check if the attraction exists
+      const attraction = await Attraction.findById(id);
+      if (!attraction) return res.status(404).json({ message: 'Attraction not found' });
+
+      try {
+        // Update the attraction
+        await attraction.updateOne(req.body, { runValidators: true });
+
+        // Get updated document for creating a contentful response
+        const document = await Attraction.findById(id);
+        res.status(200).json({
+          message: 'Updated successfully',
+          attraction: attractionReducer(document._doc),
+        });
+      } catch (error) {
+        if (!error instanceof mongoose.Error.ValidationError) throw error;
+
+        // If updating failed due to the validation error
+        const fields = Object.keys(error.errors);
+        const message = `Validation failed for \`${fields.join('`, `')}\``;
+        res.status(400).json({ message });
+      }
     } catch (error) {
       next(error);
     }

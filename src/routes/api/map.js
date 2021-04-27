@@ -7,6 +7,7 @@ const router = express.Router();
 router.get('/attractions', AttractionsController.getAll);
 router.get('/attractions/:id', AttractionsController.getOne);
 router.post('/attractions', AttractionsController.create);
+router.put('/attractions/:id', AttractionsController.update);
 router.delete('/attractions/:id', AttractionsController.delete);
 
 module.exports = router;
