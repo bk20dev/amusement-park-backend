@@ -3,6 +3,7 @@ const passport = require('passport');
 const regex = require('../validation/regex');
 const transporter = require('../connection/mail');
 const User = require('../models/user');
+const Reset = require('../models/reset');
 
 class AuthController {
   /**
@@ -101,15 +102,17 @@ class AuthController {
       const user = await User.findOne({ email });
       if (!user) return;
 
-      const id = 'test';
-      const link = `${process.env.PASSWORD_RESET_LINK}/${id}`;
+      // Save new password reset token
+      await Reset.deleteOne({ user: user.id }); // Remove existing token
+      const saved = await new Reset({ user: user.id }).save();
 
       // Compose and send an email
+      const link = process.env.PASSWORD_RESET_LINK + '/' + saved.id;
       const options = {
         from: process.env.SMTP_EMAIL,
         to: email,
         subject: 'Password reset',
-        text: `Hello ${user.name}! To reset your Pablo's Entertainment Factory account password click on the folowing link. If you didin\'t issue a password reset, you can safely ignore this email. ${link}`,
+        text: `Hello ${user.name}!\nTo reset your Pablo's Entertainment Factory account password open the following link. If you didin\'t issue a password reset, you can safely ignore this email.\n${link}`,
         html: `<p>Hello ${user.name}!<br />To reset your password click on the folowing link.<br />If you didin\'t issue a password reset, you can safely ignore this email.</p><a href="${link}">${link}</a>`,
       };
 
