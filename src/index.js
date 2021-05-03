@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 const session = require('express-session');
 
-const connect = require('./db/connect');
+const database = require('./connection/database');
 
 // Import routes
 const auth = require('./routes/auth');
@@ -34,6 +34,6 @@ app.use(api);
 
 // Connect to the database
 // and start the server
-connect().then(() => {
+database().then(() => {
   app.listen(port, () => console.log(`Server listening on port ${port}`));
 });

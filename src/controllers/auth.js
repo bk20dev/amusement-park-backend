@@ -34,7 +34,7 @@ class AuthController {
    * @param {express.NextFunction} next
    */
   static signin = (req, res, next) => {
-    // If the user is already signed in, prevent them from signing up
+    // If the user is already signed in, prevent them from signing in
     if (req.isAuthenticated())
       return res.status(403).json({ message: 'Already signed in' });
 
@@ -62,17 +62,24 @@ class AuthController {
    * Signs out a user
    * @param {express.Request} req
    * @param {express.Response} res
-   * @param {express.NextFunction} next
    */
   static signout = (req, res) => {
-    // If the user is already signed in, prevent them from signing up
+    // If the user is not signed in, prevent them from signing out
     if (req.isUnauthenticated())
-      return res.status(403).json({ message: 'Not signed in' });
+      return res.status(401).json({ message: 'Not signed in' });
 
     // Sign out the user
     req.logout();
     res.status(200).json({ message: 'Signed out' });
   };
+
+  /**
+   * Sends a password recovery email
+   * @param {express.Request} req
+   * @param {express.Response} res
+   * @param {express.NextFunction} next
+   */
+  static recover = async (req, res, next) => {};
 }
 
 module.exports = AuthController;

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 /** Connects to the database */
-const connect = () => {
+const database = () => {
   return mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -10,4 +10,4 @@ const connect = () => {
   });
 };
 
-module.exports = connect;
+module.exports = database;
