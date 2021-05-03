@@ -22,8 +22,16 @@ const userSchema = mongoose.Schema({
   },
 });
 
+const hash = (text) => bcrypt.hashSync(text, 6);
+
 userSchema.pre('save', function (next) {
-  this.password = bcrypt.hashSync(this.password, 6);
+  this.password = hash(this.password);
+  next();
+});
+
+userSchema.pre('updateOne', function (next) {
+  const password = hash(this.getUpdate().password);
+  this.update({ password });
   next();
 });
 

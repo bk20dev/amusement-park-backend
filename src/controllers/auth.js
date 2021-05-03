@@ -1,5 +1,10 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const passport = require('passport');
+const regex = require('../validation/regex');
+const transporter = require('../connection/mail');
+const User = require('../models/user');
+const Reset = require('../models/reset');
 
 class AuthController {
   /**
@@ -34,7 +39,7 @@ class AuthController {
    * @param {express.NextFunction} next
    */
   static signin = (req, res, next) => {
-    // If the user is already signed in, prevent them from signing up
+    // If the user is already signed in, prevent them from signing in
     if (req.isAuthenticated())
       return res.status(403).json({ message: 'Already signed in' });
 
@@ -62,16 +67,111 @@ class AuthController {
    * Signs out a user
    * @param {express.Request} req
    * @param {express.Response} res
-   * @param {express.NextFunction} next
    */
   static signout = (req, res) => {
-    // If the user is already signed in, prevent them from signing up
+    // If the user is not signed in, prevent them from signing out
     if (req.isUnauthenticated())
-      return res.status(403).json({ message: 'Not signed in' });
+      return res.status(401).json({ message: 'Not signed in' });
 
     // Sign out the user
     req.logout();
     res.status(200).json({ message: 'Signed out' });
+  };
+
+  /**
+   * Sends a password reset email or updates user password
+   * @param {express.Request} req
+   * @param {express.Response} res
+   * @param {express.NextFunction} next
+   */
+  static reset = (req, res, next) => {
+    if (req.query.id) AuthController.resetPassword(req, res, next);
+    else AuthController.sendPasswordResetEmail(req, res, next);
+  };
+
+  /**
+   * Sends a password reset email
+   * Part of AuthController.reset method
+   * @param {express.Request} req
+   * @param {express.Response} res
+   * @param {express.NextFunction} next
+   */
+  static sendPasswordResetEmail = async (req, res, next) => {
+    // If the user is already signed in, prevent them from reminding their password
+    if (req.isAuthenticated())
+      return res.status(403).json({ message: 'Already signed in' });
+
+    const email = req.body.email;
+
+    // Check if given email is valid
+    if (!regex.email.test(email))
+      return res.status(400).json({ message: 'Validation failed for `email`' });
+
+    // Send response without checking if given email exists
+    res.status(200).send({ message: 'Password resetting email has been sent' });
+
+    try {
+      // Check if user exists
+      const user = await User.findOne({ email });
+      if (!user) return;
+
+      // Remove existing token
+      await Reset.deleteOne({ user: user.id });
+
+      // Save new password reset token
+      const saved = await new Reset({ user: user.id }).save();
+
+      // Compose and send an email
+      const link = process.env.PASSWORD_RESET_LINK + '/' + saved.id;
+      const options = {
+        from: process.env.SMTP_EMAIL,
+        to: email,
+        subject: 'Password reset',
+        text: `Hello ${user.name}!\nTo reset your Pablo's Entertainment Factory account password open the following link. If you didin\'t issue a password reset, you can safely ignore this email.\n${link}`,
+        html: `<p>Hello ${user.name}!<br />To reset your password click on the folowing link.<br />If you didin\'t issue a password reset, you can safely ignore this email.</p><a href="${link}">${link}</a>`,
+      };
+
+      await transporter.sendMail(options);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Changes user's password
+   * Part of AuthController.reset method
+   * @param {express.Request} req
+   * @param {express.Response} res
+   * @param {express.NextFunction} next
+   */
+  static resetPassword = async (req, res, next) => {
+    const id = req.query.id;
+
+    // Validate given id
+    if (!mongoose.isValidObjectId(id))
+      return res.status(400).json({ message: 'Invalid ObjectId' });
+
+    try {
+      const reset = await Reset.findById(id);
+
+      // Check if a given token exists
+      if (!reset)
+        return res.status(404).json({ message: 'Password reset token not found' });
+
+      // Validate new password
+      const password = req.body.password;
+      if (!regex.password.test(password))
+        return res.status(400).json({ message: 'Validation failed for `password`' });
+
+      // Update password and remove token
+      const updated = await User.updateOne({ _id: reset.user }, { password });
+      await reset.delete();
+
+      if (updated.n === 0) res.status(404).json({ message: 'User not found' });
+      else res.status(200).json({ message: 'Password updated' });
+    } catch (error) {
+      next(error);
+    }
   };
 }
 
