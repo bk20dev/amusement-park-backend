@@ -79,28 +79,12 @@ class AuthController {
   };
 
   /**
-   * Sends a password reset email or updates user password
-   * @param {express.Request} req
-   * @param {express.Response} res
-   * @param {express.NextFunction} next
-   */
-  static reset = (req, res, next) => {
-    if (req.query.id) AuthController.resetPassword(req, res, next);
-    else AuthController.sendPasswordResetEmail(req, res, next);
-  };
-
-  /**
    * Sends a password reset email
-   * Part of AuthController.reset method
    * @param {express.Request} req
    * @param {express.Response} res
    * @param {express.NextFunction} next
    */
   static sendPasswordResetEmail = async (req, res, next) => {
-    // If the user is already signed in, prevent them from reminding their password
-    if (req.isAuthenticated())
-      return res.status(403).json({ message: 'Already signed in' });
-
     const email = req.body.email;
 
     // Check if given email is valid
@@ -108,7 +92,7 @@ class AuthController {
       return res.status(400).json({ message: 'Validation failed for `email`' });
 
     // Send response without checking if given email exists
-    res.status(200).send({ message: 'Password resetting email has been sent' });
+    res.status(200).send({ message: 'Password reset email has been sent' });
 
     try {
       // Check if user exists
@@ -122,7 +106,7 @@ class AuthController {
       const saved = await new Reset({ user: user.id }).save();
 
       // Compose and send an email
-      const link = process.env.PASSWORD_RESET_LINK + '/' + saved.id;
+      const link = process.env.PASSWORD_RESET_LINK + '?id=' + saved.id;
       const options = {
         from: process.env.SMTP_EMAIL,
         to: email,
@@ -139,20 +123,19 @@ class AuthController {
 
   /**
    * Changes user's password
-   * Part of AuthController.reset method
    * @param {express.Request} req
    * @param {express.Response} res
    * @param {express.NextFunction} next
    */
   static resetPassword = async (req, res, next) => {
-    const id = req.query.id;
+    const token = req.body.token;
 
     // Validate given id
-    if (!mongoose.isValidObjectId(id))
+    if (!mongoose.isValidObjectId(token))
       return res.status(400).json({ message: 'Invalid ObjectId' });
 
     try {
-      const reset = await Reset.findById(id);
+      const reset = await Reset.findById(token);
 
       // Check if a given token exists
       if (!reset)
