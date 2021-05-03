@@ -79,12 +79,24 @@ class AuthController {
   };
 
   /**
-   * Sends a password reset email
+   * Sends a password reset email or updates user password
    * @param {express.Request} req
    * @param {express.Response} res
    * @param {express.NextFunction} next
    */
-  static reset = async (req, res, next) => {
+  static reset = (req, res, next) => {
+    if (req.query.id) AuthController.resetPassword(req, res, next);
+    else AuthController.sendPasswordResetEmail(req, res, next);
+  };
+
+  /**
+   * Sends a password reset email
+   * Part of AuthController.reset method
+   * @param {express.Request} req
+   * @param {express.Response} res
+   * @param {express.NextFunction} next
+   */
+  static sendPasswordResetEmail = async (req, res, next) => {
     // If the user is already signed in, prevent them from reminding their password
     if (req.isAuthenticated())
       return res.status(403).json({ message: 'Already signed in' });
@@ -126,13 +138,14 @@ class AuthController {
   };
 
   /**
-   * Updates user password (requested using reset method)
+   * Changes user's password
+   * Part of AuthController.reset method
    * @param {express.Request} req
    * @param {express.Response} res
    * @param {express.NextFunction} next
    */
-  static change = async (req, res, next) => {
-    const id = req.params.id;
+  static resetPassword = async (req, res, next) => {
+    const id = req.query.id;
 
     // Validate given id
     if (!mongoose.isValidObjectId(id))
