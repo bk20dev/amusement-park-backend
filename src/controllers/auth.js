@@ -1,5 +1,8 @@
 const express = require('express');
 const passport = require('passport');
+const regex = require('../validation/regex');
+const transporter = require('../connection/mail');
+const User = require('../models/user');
 
 class AuthController {
   /**
@@ -74,12 +77,47 @@ class AuthController {
   };
 
   /**
-   * Sends a password recovery email
+   * Sends a password reset email
    * @param {express.Request} req
    * @param {express.Response} res
    * @param {express.NextFunction} next
    */
-  static recover = async (req, res, next) => {};
+  static reset = async (req, res, next) => {
+    // If the user is already signed in, prevent them from reminding their password
+    if (req.isAuthenticated())
+      return res.status(403).json({ message: 'Already signed in' });
+
+    const email = req.body.email;
+
+    // Check if given email is valid
+    if (!regex.email.test(email))
+      return res.status(400).json({ message: 'Validation failed for `email`' });
+
+    // Send response without checking if given email exists
+    res.status(200).send({ message: 'A password reset email has been sent' });
+
+    try {
+      // Check if user exists
+      const user = await User.findOne({ email });
+      if (!user) return;
+
+      const id = 'test';
+      const link = `${process.env.PASSWORD_RESET_LINK}/${id}`;
+
+      // Compose and send an email
+      const options = {
+        from: process.env.SMTP_EMAIL,
+        to: email,
+        subject: 'Password reset',
+        text: `Hello ${user.name}! To reset your Pablo's Entertainment Factory account password click on the folowing link. If you didin\'t issue a password reset, you can safely ignore this email. ${link}`,
+        html: `<p>Hello ${user.name}!<br />To reset your password click on the folowing link.<br />If you didin\'t issue a password reset, you can safely ignore this email.</p><a href="${link}">${link}</a>`,
+      };
+
+      await transporter.sendMail(options);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = AuthController;
