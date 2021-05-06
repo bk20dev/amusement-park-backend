@@ -15,10 +15,6 @@ class AuthController {
    * @param {express.NextFunction} next
    */
   static signup = (req, res, next) => {
-    // If the user is already signed in, prevent them from signing up
-    if (req.isAuthenticated())
-      return res.status(403).json({ message: 'Already signed in' });
-
     // Register the user
     passport.authenticate('signup', { session: false }, (error, user, info) => {
       // If there is a server error, pass it to the next middleware
@@ -40,10 +36,6 @@ class AuthController {
    * @param {express.NextFunction} next
    */
   static signin = (req, res, next) => {
-    // If the user is already signed in, prevent them from signing in
-    if (req.isAuthenticated())
-      return res.status(403).json({ message: 'Already signed in' });
-
     // Sign in the user
     passport.authenticate('signin', (error, user, info) => {
       // If there is a server error, pass it to the next middleware
@@ -70,11 +62,6 @@ class AuthController {
    * @param {express.Response} res
    */
   static signout = (req, res) => {
-    // If the user is not signed in, prevent them from signing out
-    if (req.isUnauthenticated())
-      return res.status(401).json({ message: 'Not signed in' });
-
-    // Sign out the user
     req.logout();
     res.status(200).json({ message: 'Signed out' });
   };

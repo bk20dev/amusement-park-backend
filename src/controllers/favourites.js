@@ -9,9 +9,6 @@ class FavouriteAttractionsController {
    * @param {express.NextFunction} next
    */
   static async all(req, res, next) {
-    // Check if the user is signed in
-    if (!req.isAuthenticated()) return res.status(401).json({ message: 'Not signed in' });
-
     const favourites = req.user.favourites;
 
     try {
@@ -33,9 +30,6 @@ class FavouriteAttractionsController {
    * @param {express.NextFunction} next
    */
   static async add(req, res, next) {
-    // Check if the user is signed in
-    if (!req.isAuthenticated()) return res.status(401).json({ message: 'Not signed in' });
-
     const id = req.body.id;
 
     // Validate given id
@@ -71,9 +65,6 @@ class FavouriteAttractionsController {
    * @param {express.NextFunction} next
    */
   static async remove(req, res, next) {
-    // Check if the user is signed in
-    if (!req.isAuthenticated()) return res.status(401).json({ message: 'Not signed in' });
-
     const id = req.body.id;
 
     // Validate given id

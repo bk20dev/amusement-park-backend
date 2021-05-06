@@ -1,6 +1,7 @@
 const express = require('express');
 const AttractionsController = require('../../controllers/attractions');
 const FavouriteAttractionsController = require('../../controllers/favourites');
+const only = require('../../middleware/secured');
 
 const router = express.Router();
 
@@ -11,8 +12,9 @@ router.post('/attractions', AttractionsController.create);
 router.put('/attractions/:id', AttractionsController.update);
 router.delete('/attractions/:id', AttractionsController.delete);
 
-router.get('/favourites', FavouriteAttractionsController.all);
-router.post('/favourites', FavouriteAttractionsController.add);
-router.delete('/favourites', FavouriteAttractionsController.remove);
+// Favourites
+router.get('/favourites', only.signedIn, FavouriteAttractionsController.all);
+router.post('/favourites', only.signedIn, FavouriteAttractionsController.add);
+router.delete('/favourites', only.signedIn, FavouriteAttractionsController.remove);
 
 module.exports = router;
