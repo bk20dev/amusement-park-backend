@@ -1,6 +1,6 @@
 const express = require('express');
 const AttractionsController = require('../../controllers/attractions');
-const FavouriteAttractionsController = require('../../controllers/favourite');
+const FavouriteAttractionsController = require('../../controllers/favourites');
 
 const router = express.Router();
 

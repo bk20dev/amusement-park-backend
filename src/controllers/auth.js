@@ -132,7 +132,7 @@ class AuthController {
     const token = req.body.token;
 
     // Validate given id
-    if (!mongoose.isValidObjectId(token))
+    if (!token || !mongoose.isValidObjectId(token))
       return res.status(400).json({ message: 'Invalid ObjectId' });
 
     try {

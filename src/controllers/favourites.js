@@ -21,7 +21,7 @@ class FavouriteAttractionsController {
         attractionReducer(attraction._doc)
       );
 
-      res.send(reduced);
+      res.json(reduced);
     } catch (error) {
       next(error);
     }
@@ -81,10 +81,11 @@ class FavouriteAttractionsController {
       return res.status(400).json({ message: 'Invalid ObjectId' });
 
     try {
+      // Remove attraction from favourites
       const filtered = req.user.favourites.filter((attraction) => attraction != id);
 
       if (filtered.length !== req.user.favourites.length) {
-        // Remove attraction from favourites
+        // Update user to delete the attraction
         await req.user.updateOne({ favourites: filtered }, { runValidators: true });
         return res.status(200).json({ message: 'Attraction removed from favourites' });
       } else {
