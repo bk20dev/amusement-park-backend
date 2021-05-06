@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
@@ -147,7 +148,10 @@ class AuthController {
         return res.status(400).json({ message: 'Validation failed for `password`' });
 
       // Update password and remove token
-      const updated = await User.updateOne({ _id: reset.user }, { password });
+      const updated = await User.updateOne(
+        { _id: reset.user },
+        { password: bcrypt.hashSync(password, 6) }
+      );
       await reset.delete();
 
       if (updated.n === 0) res.status(404).json({ message: 'User not found' });

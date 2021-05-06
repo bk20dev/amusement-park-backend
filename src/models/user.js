@@ -20,18 +20,14 @@ const userSchema = mongoose.Schema({
     required: true,
     validate: { validator: (value) => regex.name.test(value) },
   },
+  favourites: {
+    type: [mongoose.Schema.Types.ObjectId],
+    required: true,
+  },
 });
-
-const hash = (text) => bcrypt.hashSync(text, 6);
 
 userSchema.pre('save', function (next) {
-  this.password = hash(this.password);
-  next();
-});
-
-userSchema.pre('updateOne', function (next) {
-  const password = hash(this.getUpdate().password);
-  this.update({ password });
+  this.password = bcrypt.hashSync(this.password, 6);
   next();
 });
 
