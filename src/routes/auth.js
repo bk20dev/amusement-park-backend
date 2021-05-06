@@ -1,11 +1,12 @@
 const express = require('express');
 const AuthController = require('../controllers/auth');
+const only = require('../middleware/secured');
 
 const router = express.Router();
 
-router.post('/signup', AuthController.signup);
-router.post('/signin', AuthController.signin);
-router.get('/signout', AuthController.signout);
+router.post('/signup', only.signedOut, AuthController.signup);
+router.post('/signin', only.signedOut, AuthController.signin);
+router.get('/signout', only.signedIn, AuthController.signout);
 router.get('/reset', AuthController.sendPasswordResetEmail);
 router.post('/reset', AuthController.resetPassword);
 

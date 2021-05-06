@@ -29,7 +29,7 @@ class AttractionsController {
     const id = req.params.id;
 
     // Validate given id
-    if (!mongoose.isValidObjectId(id))
+    if (!id || !mongoose.isValidObjectId(id))
       return res.status(400).json({ message: 'Invalid ObjectId' });
 
     try {
@@ -94,7 +94,7 @@ class AttractionsController {
     const id = req.params.id;
 
     // Validate object id
-    if (!mongoose.isValidObjectId(id))
+    if (!id || !mongoose.isValidObjectId(id))
       return res.status(400).json({ message: 'Invalid ObjectId' });
 
     try {
@@ -140,7 +140,7 @@ class AttractionsController {
     const id = req.params.id;
 
     // Validate object id
-    if (!mongoose.isValidObjectId(id))
+    if (!id || !mongoose.isValidObjectId(id))
       return res.status(400).json({ message: 'Invalid ObjectId' });
 
     try {

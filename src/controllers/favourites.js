@@ -9,9 +9,6 @@ class FavouriteAttractionsController {
    * @param {express.NextFunction} next
    */
   static async all(req, res, next) {
-    // Check if the user is signed in
-    if (!req.isAuthenticated()) return res.status(401).json({ message: 'Not signed in' });
-
     const favourites = req.user.favourites;
 
     try {
@@ -21,7 +18,7 @@ class FavouriteAttractionsController {
         attractionReducer(attraction._doc)
       );
 
-      res.send(reduced);
+      res.json(reduced);
     } catch (error) {
       next(error);
     }
@@ -33,9 +30,6 @@ class FavouriteAttractionsController {
    * @param {express.NextFunction} next
    */
   static async add(req, res, next) {
-    // Check if the user is signed in
-    if (!req.isAuthenticated()) return res.status(401).json({ message: 'Not signed in' });
-
     const id = req.body.id;
 
     // Validate given id
@@ -71,9 +65,6 @@ class FavouriteAttractionsController {
    * @param {express.NextFunction} next
    */
   static async remove(req, res, next) {
-    // Check if the user is signed in
-    if (!req.isAuthenticated()) return res.status(401).json({ message: 'Not signed in' });
-
     const id = req.body.id;
 
     // Validate given id
@@ -81,10 +72,11 @@ class FavouriteAttractionsController {
       return res.status(400).json({ message: 'Invalid ObjectId' });
 
     try {
+      // Remove attraction from favourites
       const filtered = req.user.favourites.filter((attraction) => attraction != id);
 
       if (filtered.length !== req.user.favourites.length) {
-        // Remove attraction from favourites
+        // Update user to delete the attraction
         await req.user.updateOne({ favourites: filtered }, { runValidators: true });
         return res.status(200).json({ message: 'Attraction removed from favourites' });
       } else {
