@@ -10,16 +10,13 @@ const session = require('express-session');
 
 const database = require('./connection/database');
 
-// Import routes
-const auth = require('./routes/auth');
-const api = require('./routes/api');
-
 // Configure Passport.js
 require('./auth/passport');
 
 // Create server
 const app = express();
 const port = process.env.PORT || 5000;
+const router = require('./routes/router');
 
 // Serve static files
 app.use('/static', express.static(path.join(__dirname, '../static')));
@@ -33,8 +30,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Add routes
-app.use(auth);
-app.use(api);
+app.use(router.auth);
+app.use(router.api);
 
 // Connect to the database
 // and start the server
