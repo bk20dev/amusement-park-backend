@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <%- `<style>${['base.css', ...styles].map(name => `../styles/${name}`).map(include).join('')}<\/style>` %>
+  </head>
+  <body>
+    <div class="container">
+      <img class="logo" src="<%= logo %>" alt="logo" />
+      <div class="content"><%- content %></div>
+      <footer>
+        <p class="copyright">
+          Copyright &copy; <%- new Date().getFullYear() %> Pablo’s Entertainment Factory
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

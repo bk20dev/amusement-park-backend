@@ -1,20 +1,20 @@
 const express = require('express');
-const AttractionsController = require('../../controllers/attractions');
-const FavouriteAttractionsController = require('../../controllers/favourites');
+const attractions = require('../../controllers/api/attractions');
+const favourite = require('../../controllers/api/favourites');
 const only = require('../../middleware/secured');
 
 const router = express.Router();
 
 // Attractions
-router.get('/attractions', AttractionsController.getAll);
-router.get('/attractions/:id', AttractionsController.getOne);
-router.post('/attractions', AttractionsController.create);
-router.put('/attractions/:id', AttractionsController.update);
-router.delete('/attractions/:id', AttractionsController.delete);
+router.get('/attractions', attractions.getAll);
+router.get('/attractions/:id', attractions.getOne);
+router.post('/attractions', attractions.create);
+router.put('/attractions/:id', attractions.update);
+router.delete('/attractions/:id', attractions.delete);
 
 // Favourites
-router.get('/favourites', only.signedIn, FavouriteAttractionsController.all);
-router.post('/favourites', only.signedIn, FavouriteAttractionsController.add);
-router.delete('/favourites', only.signedIn, FavouriteAttractionsController.remove);
+router.get('/favourites', only.signedIn, favourite.all);
+router.post('/favourites', only.signedIn, favourite.add);
+router.delete('/favourites', only.signedIn, favourite.remove);
 
 module.exports = router;
