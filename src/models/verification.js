@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const regex = require('../validation/regex');
+const regex = require('../helpers/regex');
 
 const verificationSchema = mongoose.Schema({
   email: {

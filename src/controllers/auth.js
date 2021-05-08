@@ -2,8 +2,9 @@ const bcrypt = require('bcrypt');
 const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
-const regex = require('../validation/regex');
+const regex = require('../helpers/regex');
 const transporter = require('../connection/mail');
+const composeEmail = require('../helpers/emailComposer');
 const User = require('../models/user');
 const Verification = require('../models/verification');
 const Reset = require('../models/reset');
@@ -42,14 +43,17 @@ class AuthController {
     }
 
     // Prepare an email message
-    const link = process.env.ACCOUNT_CONFIRMATION_LINK + '?token=' + verifiaction.id;
-    const message = `Hello there,\nThank you for creating Pablo's Account!\nClick the below link to confirm your email and set a password.\n${link}\n\nNote: If you did not sign up for this account, you can ignore this email\n\nBest regards,\nThe Pablo's Team`;
+    const link = process.env.ACCOUNT_CONFIRMATION_URL + '?token=' + verifiaction.id;
+
+    const message = `Hello there!\nThank you for creating Pablo's Account!\nOpen the below link to confirm your email and set a password.\n${link}\n\nNote: If you did not sign up for this account, you can ignore this email\n\nBest regards,\nThe Pablo's Team`;
+    const htmlMessage = `<h1>Confirm your account</h1><p>Hello there! Thank you for creating Pablo's Account!<br />Click the below button to confirm your email and set a password.</p><p class="muted">If you did not sign up for this account, you can ignore this email</p><a class="button big" href="${link}">Confirm email address</a>`;
 
     const options = {
       from: process.env.SMTP_EMAIL,
       to: email,
       subject: "Confirm your Pablo's Account",
       text: message,
+      html: composeEmail(htmlMessage),
     };
 
     try {
@@ -168,12 +172,17 @@ class AuthController {
       const saved = await new Reset({ user: user.id }).save();
 
       // Compose and send an email
-      const link = process.env.PASSWORD_RESET_LINK + '?id=' + saved.id;
+      const link = process.env.PASSWORD_RESET_URL + '?id=' + saved.id;
+
+      const message = `Hello there!\nOpen the below link to reset your password.\n${link}\n\nNote: If you did not issue a password reset, you can ignore this email\n\nBest regards,\nThe Pablo's Team`;
+      const htmlMessage = `<h1>Reset your password</h1><p>Hello there! Click the below button to reset password for your Pablo's Account.</p><p class="muted">If you did not issue a password reset, you can ignore this email</p><a class="button big" href="${link}">Change password</a>`;
+
       const options = {
         from: process.env.SMTP_EMAIL,
         to: email,
         subject: 'Password reset',
-        text: `Hello there!\nTo reset your Pablo's Account password open the following link. If you didin\'t issue a password reset, you can ignore this email.\n${link}`,
+        text: message,
+        html: composeEmail(htmlMessage),
       };
 
       await transporter.sendMail(options);
@@ -189,7 +198,7 @@ class AuthController {
    * @param {express.NextFunction} next
    */
   static resetPassword = async (req, res, next) => {
-    const token = req.body.token;
+    const token = req.query.token;
 
     // Validate given id
     if (!token || !mongoose.isValidObjectId(token))

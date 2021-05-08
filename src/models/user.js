@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const regex = require('../validation/regex');
+const regex = require('../helpers/regex');
 
 const userSchema = mongoose.Schema({
   email: {
