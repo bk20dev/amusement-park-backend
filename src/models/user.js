@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const regex = require('../validation/regex');
+const regex = require('../helpers/regex');
 
 const userSchema = mongoose.Schema({
   email: {
@@ -14,11 +14,6 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
     validate: { validator: (value) => regex.password.test(value) },
-  },
-  name: {
-    type: String,
-    required: true,
-    validate: { validator: (value) => regex.name.test(value) },
   },
   favourites: {
     type: [mongoose.Schema.Types.ObjectId],

@@ -2,11 +2,9 @@ const passport = require('passport');
 const User = require('../models/user');
 
 // Import strategies
-const signup = require('./signup');
 const signin = require('./signin');
 
 // Initialize strategies
-passport.use('signup', signup);
 passport.use('signin', signin);
 
 // Serialize user to the session
