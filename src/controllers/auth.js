@@ -5,6 +5,7 @@ const passport = require('passport');
 const regex = require('../validation/regex');
 const transporter = require('../connection/mail');
 const User = require('../models/user');
+const Verification = require('../models/verification');
 const Reset = require('../models/reset');
 
 class AuthController {
@@ -14,19 +15,92 @@ class AuthController {
    * @param {express.Response} res
    * @param {express.NextFunction} next
    */
-  static signup = (req, res, next) => {
-    // Register the user
-    passport.authenticate('signup', { session: false }, (error, user, info) => {
-      // If there is a server error, pass it to the next middleware
-      if (error) return next(error);
+  static signup = async (req, res, next) => {
+    const email = req.body.email;
 
-      // If there is a user, send success message
-      if (user) return res.status(201).json({ message: 'Signed up' });
+    // Check if given email is valid
+    if (!regex.email.test(email))
+      return res.status(400).json({ message: 'Validation failed for `email`' });
 
-      // If the user hasn't been signed up
-      const message = info.message;
-      res.status(400).json({ message });
-    })(req, res, next);
+    try {
+      // Check if given email is not a duplicate
+      // prettier-ignore
+      const duplicate = await User.exists({ email }) || await Verification.exists({ email });
+      if (duplicate) return res.status(409).json({ message: 'User already exists' });
+    } catch (error) {
+      return next(error);
+    }
+
+    // If the user does not exist, create verification account
+    const verifiaction = new Verification({ email });
+
+    try {
+      // Save the account
+      await verifiaction.save();
+    } catch (error) {
+      return next(error);
+    }
+
+    // Prepare an email message
+    const link = process.env.ACCOUNT_CONFIRMATION_LINK + '?token=' + verifiaction.id;
+    const message = `Hello there,\nThank you for creating Pablo's Account!\nClick the below link to confirm your email and set a password.\n${link}\n\nNote: If you did not sign up for this account, you can ignore this email\n\nBest regards,\nThe Pablo's Team`;
+
+    const options = {
+      from: process.env.SMTP_EMAIL,
+      to: email,
+      subject: "Confirm your Pablo's Account",
+      text: message,
+    };
+
+    try {
+      // Send the email message
+      await transporter.sendMail(options);
+    } catch {
+      return next(error);
+    }
+
+    res.status(201).json({ message: 'Account created' });
+  };
+
+  /**
+   * Confirms account creation
+   * @param {express.Request} req
+   * @param {express.Response} res
+   * @param {express.NextFunction} next
+   */
+  static verification = async (req, res, next) => {
+    const token = req.query.token;
+    const password = req.body.password;
+
+    try {
+      // Check if token is valid
+      if (!token || !mongoose.isValidObjectId(token)) {
+        return res.status(400).json({ message: 'Invalid ObjectId' });
+      }
+
+      // Check if token exists
+      const verification = await Verification.findById(token);
+
+      if (!verification) {
+        return res.status(404).json({ message: 'Token not found' });
+      }
+
+      // Check if given password is valid
+      if (!regex.password.test(password)) {
+        return res.status(400).json({ message: 'Validation failed for `password`' });
+      }
+
+      // Create user account
+      const user = new User({ email: verification.email, password });
+      await user.save();
+
+      // Delete verification document
+      await verification.deleteOne();
+
+      res.status(201).json({ message: 'Account created' });
+    } catch (error) {
+      next(error);
+    }
   };
 
   /**
@@ -99,8 +173,7 @@ class AuthController {
         from: process.env.SMTP_EMAIL,
         to: email,
         subject: 'Password reset',
-        text: `Hello ${user.name}!\nTo reset your Pablo's Entertainment Factory account password open the following link. If you didin\'t issue a password reset, you can safely ignore this email.\n${link}`,
-        html: `<p>Hello ${user.name}!<br />To reset your password click on the folowing link.<br />If you didin\'t issue a password reset, you can safely ignore this email.</p><a href="${link}">${link}</a>`,
+        text: `Hello there!\nTo reset your Pablo's Account password open the following link. If you didin\'t issue a password reset, you can ignore this email.\n${link}`,
       };
 
       await transporter.sendMail(options);

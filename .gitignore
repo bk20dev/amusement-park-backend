@@ -50,3 +50,6 @@ Thumbs.db
 
 # Lockfiles
 yarn.lock
+
+# Misc
+todo.md
