@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const regex = require('../../helpers/regex');
 const transporter = require('../../connection/mail');
-const composeEmail = require('../../helpers/emailComposer');
+const generateConfirmEmail = require('../../emails/generators/confirm');
 const User = require('../../models/user');
 const Verification = require('../../models/verification');
 
@@ -41,16 +41,19 @@ const signup = async (req, res, next) => {
   // Prepare an email message
   const link = process.env.ACCOUNT_CONFIRMATION_URL + '?token=' + verifiaction.id;
 
-  const subject = "Confirm your Pablo's Account";
-  const message = `Hello there!\nThank you for creating Pablo's Account!\nOpen the below link to confirm your email and set a password.\n${link}\n\nNote: If you did not sign up for this account, you can ignore this email\n\nBest regards,\nThe Pablo's Team`;
-  const htmlMessage = `<h1>Confirm your account</h1><p>Hello there! Thank you for creating Pablo's Account!<br />Click the below button to confirm your email and set a password.</p><p class="muted">If you did not sign up for this account, you can ignore this email</p><a class="button big" href="${link}">Confirm email address</a>`;
+  const title = "Confirm your Pablo's Account";
+  const content =
+    "Hello there! Thank you for creating Pablo's Account!<br />Click the below button to confirm your email and set a password.";
+  const disclaimer = 'If you did not sign up for this account, you can ignore this email';
+  const action = 'Confirm email address';
+  const raw = `Hello there!\nThank you for creating Pablo's Account!\nOpen the below link to confirm your email and set a password.\n${link}\n\nNote: If you did not sign up for this account, you can ignore this email\n\nBest regards,\nThe Pablo's Team`;
 
   const options = {
     from: process.env.SMTP_EMAIL,
     to: email,
-    subject,
-    text: message,
-    html: await composeEmail(subject, htmlMessage),
+    subject: title,
+    text: raw,
+    html: await generateConfirmEmail({ title, content, disclaimer, action, link }),
   };
 
   try {
