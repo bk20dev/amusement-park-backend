@@ -1,0 +1,34 @@
+h1 {
+  margin-bottom: 48px;
+  font-weight: 500;
+  font-size: 48px;
+}
+
+p {
+  margin-bottom: 16px;
+  font-size: 18px;
+  line-height: 1.6em;
+}
+
+p.muted {
+  opacity: 0.5;
+  font-size: 0.8em;
+}
+
+a.button {
+  -webkit-appearance: button;
+  -moz-appearance: button;
+  appearance: button;
+  border: none;
+  font-size: inherit;
+  text-decoration: none;
+}
+
+a.button.big {
+  margin-top: 32px;
+  padding: 16px 32px;
+  border-radius: 64px;
+  background: #df19ff;
+  color: #fff;
+  font-weight: 500;
+}

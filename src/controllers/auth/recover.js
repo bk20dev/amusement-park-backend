@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const regex = require('../../helpers/regex');
 const transporter = require('../../connection/mail');
-const composeEmail = require('../../helpers/emailComposer');
+const generateConfirmEmail = require('../../emails/generators/confirm');
 const User = require('../../models/user');
 const Reset = require('../../models/reset');
 
@@ -37,15 +37,19 @@ const sendEmail = async (req, res, next) => {
     // Compose and send an email
     const link = process.env.PASSWORD_RESET_URL + '?id=' + saved.id;
 
-    const message = `Hello there!\nOpen the below link to reset your password.\n${link}\n\nNote: If you did not issue a password reset, you can ignore this email\n\nBest regards,\nThe Pablo's Team`;
-    const htmlMessage = `<h1>Reset your password</h1><p>Hello there! Click the below button to reset password for your Pablo's Account.</p><p class="muted">If you did not issue a password reset, you can ignore this email</p><a class="button big" href="${link}">Change password</a>`;
+    const title = 'Password reset';
+    const content =
+      "Hello there! Click the below button to reset password for your Pablo's Account.";
+    const disclaimer = 'If you did not issue a password reset, you can ignore this email';
+    const action = 'Change password';
+    const raw = `Hello there!\nOpen the below link to reset your password.\n${link}\n\nNote: If you did not issue a password reset, you can ignore this email\n\nBest regards,\nThe Pablo's Team`;
 
     const options = {
       from: process.env.SMTP_EMAIL,
       to: email,
-      subject: 'Password reset',
-      text: message,
-      html: composeEmail(htmlMessage),
+      subject: title,
+      text: raw,
+      html: await generateConfirmEmail({ title, content, disclaimer, action, link }),
     };
 
     await transporter.sendMail(options);
