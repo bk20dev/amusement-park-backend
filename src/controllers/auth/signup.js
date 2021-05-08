@@ -41,15 +41,16 @@ const signup = async (req, res, next) => {
   // Prepare an email message
   const link = process.env.ACCOUNT_CONFIRMATION_URL + '?token=' + verifiaction.id;
 
+  const subject = "Confirm your Pablo's Account";
   const message = `Hello there!\nThank you for creating Pablo's Account!\nOpen the below link to confirm your email and set a password.\n${link}\n\nNote: If you did not sign up for this account, you can ignore this email\n\nBest regards,\nThe Pablo's Team`;
   const htmlMessage = `<h1>Confirm your account</h1><p>Hello there! Thank you for creating Pablo's Account!<br />Click the below button to confirm your email and set a password.</p><p class="muted">If you did not sign up for this account, you can ignore this email</p><a class="button big" href="${link}">Confirm email address</a>`;
 
   const options = {
     from: process.env.SMTP_EMAIL,
     to: email,
-    subject: "Confirm your Pablo's Account",
+    subject,
     text: message,
-    html: composeEmail(htmlMessage),
+    html: await composeEmail(subject, htmlMessage),
   };
 
   try {

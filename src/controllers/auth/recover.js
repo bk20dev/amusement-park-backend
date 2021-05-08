@@ -37,15 +37,16 @@ const sendEmail = async (req, res, next) => {
     // Compose and send an email
     const link = process.env.PASSWORD_RESET_URL + '?id=' + saved.id;
 
+    const subject = 'Password reset';
     const message = `Hello there!\nOpen the below link to reset your password.\n${link}\n\nNote: If you did not issue a password reset, you can ignore this email\n\nBest regards,\nThe Pablo's Team`;
     const htmlMessage = `<h1>Reset your password</h1><p>Hello there! Click the below button to reset password for your Pablo's Account.</p><p class="muted">If you did not issue a password reset, you can ignore this email</p><a class="button big" href="${link}">Change password</a>`;
 
     const options = {
       from: process.env.SMTP_EMAIL,
       to: email,
-      subject: 'Password reset',
+      subject,
       text: message,
-      html: composeEmail(htmlMessage),
+      html: await composeEmail(subject, htmlMessage),
     };
 
     await transporter.sendMail(options);
