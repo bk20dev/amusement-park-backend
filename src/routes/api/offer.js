@@ -1,10 +1,11 @@
 const express = require('express');
-const offer = require('../../controllers/api/offer');
+const common = require('../../controllers/common/common');
+const Offer = require('../../models/offer');
 
 const router = express.Router();
 
-router.get('/', offer.all);
-router.post('/', offer.create);
-router.delete('/:id', offer.delete);
+router.get('/', common.getAll(Offer));
+router.post('/', common.create(Offer));
+router.delete('/:id', common.deleteOne(Offer));
 
 module.exports = router;
