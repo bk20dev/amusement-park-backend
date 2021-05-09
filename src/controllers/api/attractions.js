@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const attractionReducer = require('../../helpers/attractionReducer');
+const mongoReducer = require('../../helpers/mongoReducer');
 const Attraction = require('../../models/attraction');
 
 /**
@@ -7,11 +7,11 @@ const Attraction = require('../../models/attraction');
  * @param {express.Response} res
  * @param {express.NextFunction} next
  */
-const getAll = async (_, res, next) => {
+const all = async (_, res, next) => {
   try {
     // Get list of all attractions and prepare data for sending
     const attractions = await Attraction.find();
-    const reduced = attractions.map((attraction) => attractionReducer(attraction._doc));
+    const reduced = attractions.map((attraction) => mongoReducer(attraction));
     res.json(reduced);
   } catch (error) {
     next(error);
@@ -24,7 +24,7 @@ const getAll = async (_, res, next) => {
  * @param {express.Response} res
  * @param {express.NextFunction} next
  */
-const getOne = async (req, res, next) => {
+const one = async (req, res, next) => {
   const id = req.params.id;
 
   // Validate given id
@@ -35,7 +35,7 @@ const getOne = async (req, res, next) => {
     const attraction = await Attraction.findById(id);
 
     // Return attraction if found, else return an error message
-    if (attraction) res.status(200).json(attractionReducer(attraction._doc));
+    if (attraction) res.status(200).json(mongoReducer(attraction));
     else res.status(404).json({ message: 'Attraction not found' });
   } catch (error) {
     next(error);
@@ -58,7 +58,7 @@ const create = async (req, res, next) => {
       const exists = await Attraction.exists({ name: req.body.name });
       if (exists) return res.status(400).json({ message: 'Attraction already exists' });
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 
@@ -71,12 +71,12 @@ const create = async (req, res, next) => {
     return res.status(400).json({ message });
   }
 
+  // Save the attraction
   try {
-    // Save the attraction
     const saved = await attraction.save();
     return res.status(201).json({
       message: 'Attraction created',
-      attraction: attractionReducer(saved._doc),
+      attraction: mongoReducer(saved),
     });
   } catch (error) {
     next(error);
@@ -109,7 +109,7 @@ const update = async (req, res, next) => {
       const document = await Attraction.findById(id);
       res.status(200).json({
         message: 'Updated successfully',
-        attraction: attractionReducer(document._doc),
+        attraction: mongoReducer(document),
       });
     } catch (error) {
       if (!error instanceof mongoose.Error.ValidationError) throw error;
@@ -153,11 +153,11 @@ const deleteAttraction = async (req, res, next) => {
     // Return success message
     res.status(200).json({
       message: 'Attraction deleted',
-      attraction: attractionReducer(attraction._doc),
+      attraction: mongoReducer(attraction),
     });
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = { getAll, getOne, create, update, delete: deleteAttraction };
+module.exports = { all, one, create, update, delete: deleteAttraction };

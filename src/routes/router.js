@@ -19,6 +19,9 @@ auth.post('/reset', recover.resetPassword);
 
 // API
 const map = require('./api/map');
+const offer = require('./api/offer');
+
 api.use('/map', map);
+api.use('/offer', offer);
 
 module.exports = { auth, api };

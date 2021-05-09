@@ -6,8 +6,8 @@ const only = require('../../middleware/secured');
 const router = express.Router();
 
 // Attractions
-router.get('/attractions', attractions.getAll);
-router.get('/attractions/:id', attractions.getOne);
+router.get('/attractions', attractions.all);
+router.get('/attractions/:id', attractions.one);
 router.post('/attractions', attractions.create);
 router.put('/attractions/:id', attractions.update);
 router.delete('/attractions/:id', attractions.delete);
