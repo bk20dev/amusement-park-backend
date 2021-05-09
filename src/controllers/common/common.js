@@ -3,12 +3,12 @@ const reducer = require('../../helpers/mongoReducer');
 
 /**
  * Returns all objects in given collection
- * @param {mongoose.Model<mongoose.Document<any, {}>, {}>} collection
+ * @param {mongoose.Model<mongoose.Document<any, {}>, {}>} model
  */
-const getAll = (collection) => async (req, res, next) => {
+const getAll = (model) => async (req, res, next) => {
   try {
     // Get all documents
-    const documents = await collection.find();
+    const documents = await model.find();
     const reduced = documents.map(reducer);
     res.json(reduced);
   } catch (error) {
@@ -18,9 +18,9 @@ const getAll = (collection) => async (req, res, next) => {
 
 /**
  * Finds one object in given collection
- * @param {mongoose.Model<mongoose.Document<any, {}>, {}>} collection
+ * @param {mongoose.Model<mongoose.Document<any, {}>, {}>} model
  */
-const getOne = (collection) => async (req, res, next) => {
+const getOne = (model) => async (req, res, next) => {
   const id = req.params.id;
 
   // Validate object id
@@ -28,7 +28,7 @@ const getOne = (collection) => async (req, res, next) => {
     return res.status(400).json({ message: 'Invalid ObjectId' });
 
   try {
-    const document = await collection.findById(id);
+    const document = await model.findById(id);
 
     if (document) res.status(200).json(reducer(document));
     else res.status(404).json({ message: 'Not found' });
@@ -39,10 +39,10 @@ const getOne = (collection) => async (req, res, next) => {
 
 /**
  * Creates new object in given collection
- * @param {mongoose.Model<mongoose.Document<any, {}>, {}>} collection
+ * @param {mongoose.Model<mongoose.Document<any, {}>, {}>} model
  */
-const create = (collection) => async (req, res, next) => {
-  const document = new collection(req.body);
+const create = (model) => async (req, res, next) => {
+  const document = new model(req.body);
 
   // Validate document
   const validation = document.validateSync();
@@ -66,9 +66,9 @@ const create = (collection) => async (req, res, next) => {
 
 /**
  * Deletes object in given collection
- * @param {mongoose.Model<mongoose.Document<any, {}>, {}>} collection
+ * @param {mongoose.Model<mongoose.Document<any, {}>, {}>} model
  */
-const deleteOne = (collection) => async (req, res, next) => {
+const deleteOne = (model) => async (req, res, next) => {
   const id = req.params.id;
 
   // Validate object id
@@ -77,7 +77,7 @@ const deleteOne = (collection) => async (req, res, next) => {
 
   try {
     // Check if document exists
-    const document = await collection.findById(id);
+    const document = await model.findById(id);
     if (!document) return res.status(404).json({ message: 'Not found' });
 
     // Delete the document
