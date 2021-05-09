@@ -60,6 +60,8 @@ const create = (model) => async (req, res, next) => {
       document: reducer(saved),
     });
   } catch (error) {
+    if (error.name === 'MongoError' && error.code === 11000)
+      return res.status(409).json({ message: 'This document already exists' });
     next(error);
   }
 };
