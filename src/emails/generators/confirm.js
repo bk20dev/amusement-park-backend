@@ -2,7 +2,7 @@ const ejs = require('ejs');
 const path = require('path');
 const generateEmailBase = require('./base');
 
-const confirm = async ({ title, content, disclaimer, action, link }) => {
+const generateConfirmEmail = async ({ title, content, disclaimer, action, link }) => {
   const file = path.join(__dirname, '../templates/confirm.ejs');
   const options = { title, content, disclaimer, action, link };
 
@@ -12,4 +12,4 @@ const confirm = async ({ title, content, disclaimer, action, link }) => {
   return rendered;
 };
 
-module.exports = confirm;
+module.exports = generateConfirmEmail;
