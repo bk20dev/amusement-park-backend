@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
+const mongoReducer = require('../../helpers/mongoReducer');
 const Attraction = require('../../models/attraction');
-const attractionReducer = require('../../helpers/attractionReducer');
 
 /**
  * Returns list of all attractions marked as favourite
@@ -14,7 +14,7 @@ const all = async (req, res, next) => {
     // Find all attractions
     const attractions = await Attraction.find({ _id: { $in: favourites } });
     const reduced = Object.values(attractions).map((attraction) =>
-      attractionReducer(attraction._doc)
+      mongoReducer(attraction)
     );
 
     res.json(reduced);

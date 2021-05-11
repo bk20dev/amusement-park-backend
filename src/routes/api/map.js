@@ -1,16 +1,18 @@
 const express = require('express');
+const common = require('../../controllers/common/common');
+const only = require('../../middleware/secured');
+const Attraction = require('../../models/attraction');
 const attractions = require('../../controllers/api/attractions');
 const favourite = require('../../controllers/api/favourites');
-const only = require('../../middleware/secured');
 
 const router = express.Router();
 
 // Attractions
-router.get('/attractions', attractions.getAll);
-router.get('/attractions/:id', attractions.getOne);
-router.post('/attractions', attractions.create);
+router.get('/attractions', common.getAll(Attraction));
+router.get('/attractions/:id', common.getOne(Attraction));
+router.post('/attractions', common.create(Attraction));
 router.put('/attractions/:id', attractions.update);
-router.delete('/attractions/:id', attractions.delete);
+router.delete('/attractions/:id', common.deleteOne(Attraction));
 
 // Favourites
 router.get('/favourites', only.signedIn, favourite.all);

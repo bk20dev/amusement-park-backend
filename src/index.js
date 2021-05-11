@@ -3,6 +3,7 @@ require('dotenv').config();
 
 // Import dependencies
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 const bodyParser = require('body-parser');
 const passport = require('passport');
@@ -17,6 +18,8 @@ require('./auth/passport');
 const app = express();
 const port = process.env.PORT || 5000;
 const router = require('./routes/router');
+
+app.use(cors({ origin: '*' }));
 
 // Serve static files
 app.use('/static', express.static(path.join(__dirname, '../static')));
