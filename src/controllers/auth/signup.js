@@ -20,26 +20,36 @@ const signup = async (req, res, next) => {
     return res.status(400).json({ message: 'Validation failed for `email`' });
 
   try {
-    // Check if given email is not a duplicate
-    // prettier-ignore
-    const duplicate = await User.exists({ email }) || await Verification.exists({ email });
-    if (duplicate) return res.status(409).json({ message: 'User already exists' });
+    // Check if given email doesn't duplicate any existing account
+    const accountExists = await User.exists({ email });
+    if (accountExists) return res.status(409).json({ message: 'User already exists' });
   } catch (error) {
     return next(error);
   }
 
-  // If the user does not exist, create verification account
-  const verifiaction = new Verification({ email });
+  let id;
 
+  // Get id from existing token or create a new one
   try {
-    // Save the account
-    await verifiaction.save();
+    const existingToken = await Verification.findOne({ email });
+
+    if (existingToken) {
+      id = existingToken.id;
+    } else {
+      // If the token does not exist, create a new one
+      const verification = new Verification({ email });
+      await verification.save();
+
+      id = verification.id;
+    }
   } catch (error) {
     return next(error);
   }
 
-  // Prepare an email message
-  const link = process.env.ACCOUNT_CONFIRMATION_URL + '?token=' + verifiaction.id;
+  res.status(201).json({ message: 'Account created' });
+
+  // Prepare and send an email message
+  const link = process.env.ACCOUNT_CONFIRMATION_URL + '?token=' + id;
 
   const title = "Confirm your Pablo's Account";
   const content =
@@ -56,14 +66,7 @@ const signup = async (req, res, next) => {
     html: await generateConfirmEmail({ title, content, disclaimer, action, link }),
   };
 
-  try {
-    // Send the email message
-    await transporter.sendMail(options);
-  } catch {
-    return next(error);
-  }
-
-  res.status(201).json({ message: 'Account created' });
+  transporter.sendMail(options);
 };
 
 /**

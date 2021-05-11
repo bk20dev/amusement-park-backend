@@ -8,10 +8,10 @@ const verificationSchema = mongoose.Schema({
     unique: true,
     validate: { validator: (value) => regex.email.test(value) },
   },
-  iat: {
+  expires: {
     type: Date,
-    required: true,
-    default: new Date(),
+    default: Date.now(),
+    expires: 432000, // Expires after 5 days
   },
 });
 
