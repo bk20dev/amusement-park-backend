@@ -22,7 +22,8 @@ const customReducer = (initial) => {
 const fullReducer = (value) => customReducer(mongoReducer(value));
 
 router.get('/', common.getAll(Offer, fullReducer));
-router.post('/', common.create(Offer, fullReducer));
+router.get('/:id', common.getOne(Offer, fullReducer));
+router.post('/', common.create(Offer));
 router.put('/:id', offer.update);
 router.delete('/:id', common.deleteOne(Offer, fullReducer));
 

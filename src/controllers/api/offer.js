@@ -18,7 +18,7 @@ const update = async (req, res, next) => {
 
     const document = await Offer.findById(id);
     res.status(200).json({
-      message: 'Updated successfully',
+      message: 'Document updated',
       document: reducer(document),
     });
   } catch (error) {
