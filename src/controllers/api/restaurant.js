@@ -1,25 +1,26 @@
 const mongoose = require('mongoose');
+const Restaurant = require('../../models/restaurant');
 const reducer = require('../../helpers/mongoReducer');
-const Offer = require('../../models/offer');
 
 const update = async (req, res, next) => {
   const id = req.params.id;
 
-  // Validate object id
   if (!id || !mongoose.isValidObjectId(id))
     return res.status(400).json({ message: 'Invalid ObjectId' });
 
   try {
-    // Check if the offer exists
-    const offer = await Offer.findById(id);
-    if (!offer) return res.status(404).json({ message: 'Not found' });
+    // Check if the dish exists
+    const dish = await Restaurant.findById(id);
+    if (!dish) return res.status(404).json({ message: 'Not found' });
 
-    await offer.updateOne(req.body, { runValidators: true });
+    // Update the dish
+    await dish.updateOne(req.body, { runValidators: true });
 
-    const document = await Offer.findById(id);
+    // Send success response
+    const updated = await Restaurant.findById(id);
     res.status(200).json({
       message: 'Document updated',
-      document: reducer(document),
+      document: reducer(updated),
     });
   } catch (error) {
     if (error instanceof mongoose.Error.ValidationError) {
@@ -36,4 +37,4 @@ const update = async (req, res, next) => {
   }
 };
 
-module.exports = { update };
+module.exports = update;
