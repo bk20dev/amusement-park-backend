@@ -20,8 +20,10 @@ auth.post('/reset', recover.resetPassword);
 // API
 const map = require('./api/map');
 const offer = require('./api/offer');
+const restaurant = require('./api/restaurant');
 
 api.use('/map', map);
 api.use('/offer', offer);
+api.use('/restaurant', restaurant);
 
 module.exports = { auth, api };
