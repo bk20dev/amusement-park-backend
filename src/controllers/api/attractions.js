@@ -31,17 +31,17 @@ const update = async (req, res, next) => {
         attraction: mongoReducer(document),
       });
     } catch (error) {
-      if (!error instanceof mongoose.Error.ValidationError) throw error;
-
-      if (error.name === 'MongoError' && error.code === 11000)
+      if (error instanceof mongoose.Error.ValidationError) {
+        // Send names of fields that failed validation
+        const fields = Object.keys(error.errors);
+        const message = `Validation failed for \`${fields.join('`, `')}\``;
+        return res.status(400).json({ message });
+      } else if (error instanceof mongoose.mongo.MongoError && error.code === 11000) {
+        // Index duplicate error
         return res
-          .status(400)
-          .json({ message: 'Attraction with this name already exists' });
-
-      // If updating failed due to the validation error
-      const fields = Object.keys(error.errors);
-      const message = `Validation failed for \`${fields.join('`, `')}\``;
-      res.status(400).json({ message });
+          .status(409)
+          .json({ message: 'Document with this name already exists' });
+      }
     }
   } catch (error) {
     next(error);
