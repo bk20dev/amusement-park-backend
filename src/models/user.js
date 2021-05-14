@@ -15,7 +15,7 @@ const userSchema = mongoose.Schema({
     required: true,
     validate: { validator: (value) => regex.password.test(value) },
   },
-  favourites: {
+  favorites: {
     type: [mongoose.Schema.Types.ObjectId],
     required: true,
   },

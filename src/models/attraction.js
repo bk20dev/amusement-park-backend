@@ -8,7 +8,19 @@ const locationSchema = mongoose.Schema(
 const attractionSchema = mongoose.Schema({
   name: { type: String, required: true, unique: true },
   description: { type: String, required: true },
-  type: { type: String, enum: ['Slide'], required: true },
+  type: {
+    type: String,
+    enum: [
+      'Roller Coaster',
+      'Ferris Wheel',
+      'Swing',
+      'Cinema',
+      'Restaurant',
+      'Racing',
+      'Other',
+    ],
+    required: true,
+  },
   difficulty: { type: Number, enum: [0, 1, 2], default: null },
   location: {
     type: locationSchema,
