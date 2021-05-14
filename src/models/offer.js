@@ -54,6 +54,6 @@ offerSchema.pre('updateOne', async function (next) {
   next();
 });
 
-const Offer = mongoose.model('offer', offerSchema);
+const Offer = mongoose.model('offers', offerSchema);
 
 module.exports = Offer;
