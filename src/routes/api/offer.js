@@ -1,7 +1,6 @@
 const express = require('express');
 const common = require('../../controllers/common/common');
 const Offer = require('../../models/offer');
-const offer = require('../../controllers/api/offer');
 const mongoReducer = require('../../helpers/mongoReducer');
 
 const router = express.Router();
@@ -24,7 +23,7 @@ const fullReducer = (value) => customReducer(mongoReducer(value));
 router.get('/', common.getAll(Offer, fullReducer));
 router.get('/:id', common.getOne(Offer, fullReducer));
 router.post('/', common.create(Offer));
-router.put('/:id', offer.update);
+router.put('/:id', common.update(Offer));
 router.delete('/:id', common.deleteOne(Offer, fullReducer));
 
 module.exports = router;

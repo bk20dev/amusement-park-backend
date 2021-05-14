@@ -72,6 +72,46 @@ const create =
     }
   };
 
+const update =
+  (model, reducer = defaultReducer) =>
+  async (req, res, next) => {
+    const id = req.params.id;
+
+    // Validate ObjectId
+    if (!id || !mongoose.isValidObjectId(id))
+      return res.status(400).json({ message: 'Invalid ObjectId' });
+
+    try {
+      // Check if document exists
+      const document = await model.findById(id);
+      if (!document) return res.status(404).json({ message: 'Not found' });
+
+      // Update the document
+      await document.updateOne(req.body, { runValidators: true });
+
+      // Get updated document to create a contentful response
+      const updated = await model.findById(id);
+      res.status(200).json({
+        message: 'Document updated',
+        document: reducer(updated),
+      });
+    } catch (error) {
+      if (error instanceof mongoose.Error.ValidationError) {
+        // Send names of fields that failed validation
+        const fields = Object.keys(error.errors);
+        const message = `Validation failed for \`${fields.join('`, `')}\``;
+        return res.status(400).json({ message });
+      } else if (error instanceof mongoose.mongo.MongoError && error.code === 11000) {
+        // Index duplicate error
+        return res
+          .status(409)
+          .json({ message: 'Document with this name already exists' });
+      }
+
+      next(error);
+    }
+  };
+
 /**
  * Deletes object in given collection
  * @param {mongoose.Model<mongoose.Document<any, {}>, {}>} model
@@ -103,4 +143,4 @@ const deleteOne =
     }
   };
 
-module.exports = { getAll, getOne, create, deleteOne };
+module.exports = { getAll, getOne, create, update, deleteOne };
