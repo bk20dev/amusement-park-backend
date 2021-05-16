@@ -18,11 +18,13 @@ auth.get('/reset', recover.sendEmail);
 auth.post('/reset', recover.resetPassword);
 
 // API
+const account = require('./api/account');
 const map = require('./api/map');
 const offer = require('./api/offer');
 const booking = require('./api/booking');
 const restaurant = require('./api/restaurant');
 
+api.use('/account', account);
 api.use('/map', map);
 api.use('/offer', offer);
 api.use('/booking', booking);

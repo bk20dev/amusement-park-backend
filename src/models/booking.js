@@ -18,7 +18,7 @@ const bookingSchema = mongoose.Schema({
     required: true,
     validate: { validator: (value) => regex.email.test(value) },
   },
-  linkedUser: {
+  user: {
     type: mongoose.Types.ObjectId,
     required: false,
     ref: 'users',
