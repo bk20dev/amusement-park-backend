@@ -22,12 +22,14 @@ const account = require('./api/account');
 const map = require('./api/map');
 const offer = require('./api/offer');
 const booking = require('./api/booking');
+const accommodation = require('./api/accommodation');
 const restaurant = require('./api/restaurant');
 
 api.use('/account', account);
 api.use('/map', map);
 api.use('/offer', offer);
 api.use('/booking', booking);
+api.use('/accommodation', accommodation);
 api.use('/restaurant', restaurant);
 
 module.exports = { auth, api };
