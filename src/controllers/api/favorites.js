@@ -4,6 +4,7 @@ const Attraction = require('../../models/attraction');
 
 /**
  * Returns list of all attractions marked as favorite
+ * @param {express.Request} req
  * @param {express.Response} res
  * @param {express.NextFunction} next
  */
@@ -25,6 +26,7 @@ const all = async (req, res, next) => {
 
 /**
  * Adds an attraction to favorites list
+ * @param {express.Request} req
  * @param {express.Response} res
  * @param {express.NextFunction} next
  */
@@ -60,6 +62,7 @@ const add = async (req, res, next) => {
 
 /**
  * Removes an attraction from favorites list
+ * @param {express.Request} req
  * @param {express.Response} res
  * @param {express.NextFunction} next
  */

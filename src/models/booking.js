@@ -18,7 +18,7 @@ const bookingSchema = mongoose.Schema({
     required: true,
     validate: { validator: (value) => regex.email.test(value) },
   },
-  linkedUser: {
+  user: {
     type: mongoose.Types.ObjectId,
     required: false,
     ref: 'users',
@@ -31,6 +31,12 @@ const bookingSchema = mongoose.Schema({
   tickets: {
     type: [ticketSchema],
     required: true,
+  },
+  code: {
+    type: String,
+    required: true,
+    validate: { validator: (value) => regex.code.test(value) },
+    default: () => Math.floor(Math.random() * 1e6),
   },
 });
 
