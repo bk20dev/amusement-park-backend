@@ -32,6 +32,12 @@ const bookingSchema = mongoose.Schema({
     type: [ticketSchema],
     required: true,
   },
+  code: {
+    type: String,
+    required: true,
+    validate: { validator: (value) => regex.code.test(value) },
+    default: () => Math.floor(Math.random() * 1e6),
+  },
 });
 
 const Booking = mongoose.model('bookings', bookingSchema);

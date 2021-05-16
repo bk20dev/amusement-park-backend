@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const regex = require('../../helpers/regex');
 const mongoReducer = require('../../helpers/mongoReducer');
 const Booking = require('../../models/booking');
 
@@ -26,15 +27,21 @@ const getTickets = async (req, res, next) => {
 
 const assignTicket = async (req, res, next) => {
   const id = req.params.id;
+  const code = req.query.code;
 
   // Validate object id
   if (!id || !mongoose.isValidObjectId(id))
     return res.status(400).json({ message: 'Invalid ObjectId' });
 
+  // Check if code was provided
+  if (!code || !regex.code.test(code))
+    return res.status(400).json({ message: 'Invalid code' });
+
   try {
     // Check if the ticket exists
     const ticket = await Booking.findById(id);
-    if (!ticket) return res.status(404).json({ message: 'Not found' });
+    if (!ticket || ticket.code !== code)
+      return res.status(404).json({ message: 'Not found' });
 
     // Check if the ticket is not assigned
     if (ticket.user) return res.status(409).json({ message: 'Already assigned' });
