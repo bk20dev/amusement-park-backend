@@ -12,7 +12,7 @@ const ticketSchema = mongoose.Schema(
   { _id: false }
 );
 
-const bookingSchema = mongoose.Schema({
+const ticketBookingSchema = mongoose.Schema({
   email: {
     type: String,
     required: true,
@@ -40,6 +40,6 @@ const bookingSchema = mongoose.Schema({
   },
 });
 
-const Booking = mongoose.model('bookings', bookingSchema);
+const TicketBooking = mongoose.model('bookings', ticketBookingSchema);
 
-module.exports = Booking;
+module.exports = TicketBooking;

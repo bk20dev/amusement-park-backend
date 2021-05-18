@@ -1,6 +1,6 @@
 const express = require('express');
 const common = require('../../controllers/common/common');
-const Offer = require('../../models/offer');
+const Offer = require('../../models/ticketOffer');
 const mongoReducer = require('../../helpers/mongoReducer');
 
 const router = express.Router();

@@ -20,16 +20,19 @@ auth.post('/reset', recover.resetPassword);
 // API
 const account = require('./api/account');
 const map = require('./api/map');
-const offer = require('./api/offer');
-const booking = require('./api/booking');
-const accommodation = require('./api/accommodation');
 const restaurant = require('./api/restaurant');
 
 api.use('/account', account);
 api.use('/map', map);
-api.use('/offer', offer);
-api.use('/booking', booking);
-api.use('/accommodation', accommodation);
 api.use('/restaurant', restaurant);
+
+const ticketOffer = require('./api/ticketOffer');
+const ticketBooking = require('./api/ticketBooking');
+const stayOffer = require('./api/stayOffer');
+
+api.use('/tickets', ticketOffer);
+api.use('/tickets/bookings', ticketBooking);
+api.use('/stay', stayOffer);
+// api.use('/stay/bookings', stayBooking);
 
 module.exports = { auth, api };

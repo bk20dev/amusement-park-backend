@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const accommodationSchema = mongoose.Schema({
+const stayOfferSchema = mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -25,6 +25,6 @@ const accommodationSchema = mongoose.Schema({
   },
 });
 
-const Accommodation = mongoose.model('accommodation', accommodationSchema);
+const StayOffer = mongoose.model('stayOffer', stayOfferSchema);
 
-module.exports = Accommodation;
+module.exports = StayOffer;

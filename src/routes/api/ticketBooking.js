@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const common = require('../../controllers/common/common');
-const Booking = require('../../models/booking');
+const Booking = require('../../models/ticketBooking');
 
 router.get('/', common.getAll(Booking));
 router.get('/:id', common.getOne(Booking));
