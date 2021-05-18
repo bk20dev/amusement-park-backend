@@ -52,6 +52,6 @@ ticketOfferSchema.pre('updateOne', async function (next) {
   next();
 });
 
-const TicketOffer = mongoose.model('offers', ticketOfferSchema);
+const TicketOffer = mongoose.model('ticketOffers', ticketOfferSchema);
 
 module.exports = TicketOffer;

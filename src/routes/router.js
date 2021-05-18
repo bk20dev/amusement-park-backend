@@ -29,10 +29,11 @@ api.use('/restaurant', restaurant);
 const ticketOffer = require('./api/ticketOffer');
 const ticketBooking = require('./api/ticketBooking');
 const stayOffer = require('./api/stayOffer');
+const stayBooking = require('./api/stayBooking');
 
-api.use('/tickets', ticketOffer);
 api.use('/tickets/bookings', ticketBooking);
+api.use('/tickets', ticketOffer);
+api.use('/stay/bookings', stayBooking);
 api.use('/stay', stayOffer);
-// api.use('/stay/bookings', stayBooking);
 
 module.exports = { auth, api };
