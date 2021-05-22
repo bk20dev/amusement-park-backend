@@ -52,7 +52,7 @@ const signup = async (req, res, next) => {
   const rendered = await create(id);
   const mail = { from: process.env.SMTP_EMAIL, to: email, ...rendered };
 
-  transporter.sendMail(mail);
+  await transporter.sendMail(mail);
 };
 
 /**

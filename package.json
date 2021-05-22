@@ -15,7 +15,8 @@
     "mongoose": "^5.12.5",
     "nodemailer": "^6.6.0",
     "passport": "^0.4.1",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "qrcode": "^1.4.4"
   },
   "devDependencies": {
     "@types/node": "^14.14.41"
