@@ -19,6 +19,16 @@ const userSchema = mongoose.Schema({
     type: [mongoose.Schema.Types.ObjectId],
     required: true,
   },
+  trip: {
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'attractions',
+        required: true,
+      },
+    ],
+    required: true,
+  },
 });
 
 userSchema.pre('save', function (next) {

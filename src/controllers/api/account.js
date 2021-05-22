@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const regex = require('../../helpers/regex');
 const mongoReducer = require('../../helpers/mongoReducer');
 const Booking = require('../../models/ticketBooking');
-
-// Tickets
+const User = require('../../models/user');
+const Attraction = require('../../models/attraction');
 
 /**
- * Returns list of all ticket assigned to a user
+ * Returns list of all ticket assigned to the user that is currently signed in
  * @param {express.Request} req
  * @param {express.Response} res
  * @param {express.NextFunction} next
@@ -25,6 +25,12 @@ const getTickets = async (req, res, next) => {
   }
 };
 
+/**
+ * Assigns a ticket to the user that is currently signed in
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @param {express.NextFunction} next
+ */
 const assignTicket = async (req, res, next) => {
   const id = req.params.id;
   const code = req.query.code;
@@ -54,4 +60,61 @@ const assignTicket = async (req, res, next) => {
   }
 };
 
-module.exports = { getTickets, assignTicket };
+/**
+ * Returns a planned trip
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @param {express.NextFunction} next
+ */
+const getTrip = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id, { trip: true, _id: false }).populate(
+      'trip'
+    );
+    const attractions = user.trip.map(mongoReducer);
+    res.json(attractions);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Updates a planned trip
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @param {express.NextFunction} next
+ */
+const updateTrip = async (req, res, next) => {
+  const attractions = req.body;
+
+  if (!Array.isArray(attractions))
+    return res.status(400).json({ message: 'Validation failed for `attractions`' });
+
+  // Validate given ids
+  const invalid = attractions.filter((id) => !mongoose.isValidObjectId(id));
+  if (invalid.length)
+    return res
+      .status(400)
+      .json({ message: 'Validation failed for ObjectId in `attractions`', invalid });
+
+  try {
+    // Find corresponding attractions
+    const found = await Attraction.find({ _id: { $in: attractions } }, { _id: true });
+    const mapped = found.map((attraction) => attraction.id);
+
+    const missing = attractions.filter((id) => !mapped.includes(id));
+
+    if (missing.length)
+      return res
+        .status(404)
+        .json({ message: `Attraction not found for \'${missing.join('`, `')}\`` });
+
+    // Update
+    await req.user.updateOne({ trip: attractions });
+    res.status(200).json({ message: 'Trip updated' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { getTickets, assignTicket, getTrip, updateTrip };

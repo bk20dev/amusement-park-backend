@@ -43,8 +43,6 @@ const add = async (req, res, next) => {
     if (!attraction) return res.status(404).json({ message: 'Attraction not found' });
 
     const user = req.user;
-
-    // prettier-ignore
     const alreadyExists = user.favorites.some((attraction) => attraction == id);
 
     if (alreadyExists)
