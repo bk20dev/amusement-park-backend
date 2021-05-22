@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const clamp = require('../utils/clamp');
 
-const offerSchema = mongoose.Schema({
+const ticketOfferSchema = mongoose.Schema({
   name: { type: String, required: true, unique: true },
   description: { type: String, required: false, default: null },
   price: {
@@ -20,13 +20,13 @@ const offerSchema = mongoose.Schema({
   image: { type: String, required: true },
 });
 
-offerSchema.pre('save', function (next) {
+ticketOfferSchema.pre('save', function (next) {
   // Prevent discounted price to be higher than normal price or lower than 0
   this.discountedPrice = clamp(this.discountedPrice, 0, this.price);
   next();
 });
 
-offerSchema.pre('updateOne', async function (next) {
+ticketOfferSchema.pre('updateOne', async function (next) {
   const update = this.getUpdate();
 
   // Set null if description is empty
@@ -44,9 +44,7 @@ offerSchema.pre('updateOne', async function (next) {
   } else if ('discountedPrice' in update) {
     // Fetch current data to properly handle changing prices
     const id = this.getQuery()._id;
-    const current = await Offer.findById(id, { price: true });
-
-    console.log(current);
+    const current = await TicketOffer.findById(id, { price: true });
 
     update.discountedPrice = clamp(update.discountedPrice, 0, current.price);
   }
@@ -54,6 +52,6 @@ offerSchema.pre('updateOne', async function (next) {
   next();
 });
 
-const Offer = mongoose.model('offers', offerSchema);
+const TicketOffer = mongoose.model('ticketOffers', ticketOfferSchema);
 
-module.exports = Offer;
+module.exports = TicketOffer;

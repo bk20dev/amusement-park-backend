@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const regex = require('../../helpers/regex');
 const mongoReducer = require('../../helpers/mongoReducer');
-const Booking = require('../../models/booking');
+const Booking = require('../../models/ticketBooking');
 
 // Tickets
 
