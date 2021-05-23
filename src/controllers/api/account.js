@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const regex = require('../../helpers/regex');
 const mongoReducer = require('../../helpers/mongoReducer');
 const Booking = require('../../models/ticketBooking');
@@ -117,4 +118,37 @@ const updateTrip = async (req, res, next) => {
   }
 };
 
-module.exports = { getTickets, assignTicket, getTrip, updateTrip };
+/**
+ * Changes user password
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @param {express.NextFunction} next
+ */
+const changePassword = async (req, res, next) => {
+  const current = req.body.current;
+  const newPassword = req.body.new;
+
+  // Check if current password is given
+  if (!current) return res.status(400).json({ message: 'Current password missing' });
+
+  // Check if new password is valid
+  if (!regex.password.test(newPassword))
+    return res.status(400).json({ message: 'Validation failed for `new`' });
+
+  // Check if current password is correct
+  if (!req.user.isPasswordCorrect(current))
+    return res.status(400).json({ message: 'Incorrect password' });
+
+  if (current === newPassword)
+    return res.status(409).json({ message: 'Passwords must be different' });
+
+  try {
+    // Update password
+    await req.user.updateOne({ password: bcrypt.hashSync(newPassword, 6) });
+    res.status(200).json({ message: 'Password updated' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { getTickets, assignTicket, getTrip, updateTrip, changePassword };

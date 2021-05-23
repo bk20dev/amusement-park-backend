@@ -22,7 +22,7 @@ const account = require('./api/account');
 const map = require('./api/map');
 const restaurant = require('./api/restaurant');
 
-api.use('/account', account);
+api.use('/account', only.signedIn, account);
 api.use('/map', map);
 api.use('/restaurant', restaurant);
 

@@ -5,14 +5,18 @@ const {
   assignTicket,
   getTrip,
   updateTrip,
+  changePassword,
 } = require('../../controllers/api/account');
 
 // Tickets
-router.get('/tickets', only.signedIn, getTickets);
-router.post('/tickets/:id', only.signedIn, assignTicket);
+router.get('/tickets', getTickets);
+router.post('/tickets/:id', assignTicket);
 
 // Trip planning
-router.get('/trip', only.signedIn, getTrip);
-router.put('/trip', only.signedIn, updateTrip);
+router.get('/trip', getTrip);
+router.put('/trip', updateTrip);
+
+// Settings
+router.put('/password', changePassword);
 
 module.exports = router;
