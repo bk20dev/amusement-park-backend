@@ -1,11 +1,11 @@
 const router = require('express').Router();
-const only = require('../../middleware/secured');
 const {
   getTickets,
   assignTicket,
   getTrip,
   updateTrip,
   changePassword,
+  deleteAccount,
 } = require('../../controllers/api/account');
 
 // Tickets
@@ -18,5 +18,6 @@ router.put('/trip', updateTrip);
 
 // Settings
 router.put('/password', changePassword);
+router.delete('/', deleteAccount);
 
 module.exports = router;

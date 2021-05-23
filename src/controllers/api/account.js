@@ -3,9 +3,12 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const regex = require('../../helpers/regex');
 const mongoReducer = require('../../helpers/mongoReducer');
+const prepareAccountDeleteEmail = require('../../emails/generators/account/delete');
+const transporter = require('../../connection/mail');
 const Booking = require('../../models/ticketBooking');
 const User = require('../../models/user');
 const Attraction = require('../../models/attraction');
+const Delete = require('../../models/delete');
 
 /**
  * Returns list of all ticket assigned to the user that is currently signed in
@@ -137,7 +140,7 @@ const changePassword = async (req, res, next) => {
 
   // Check if current password is correct
   if (!req.user.isPasswordCorrect(current))
-    return res.status(400).json({ message: 'Incorrect password' });
+    return res.status(401).json({ message: 'Incorrect password' });
 
   if (current === newPassword)
     return res.status(409).json({ message: 'Passwords must be different' });
@@ -151,4 +154,41 @@ const changePassword = async (req, res, next) => {
   }
 };
 
-module.exports = { getTickets, assignTicket, getTrip, updateTrip, changePassword };
+/**
+ * Sends account delete confirmation email
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @param {express.NextFunction} next
+ */
+const deleteAccount = async (req, res, next) => {
+  const password = req.body.password;
+
+  if (!password || !req.user.isPasswordCorrect(password))
+    return res.status(401).json({ message: 'Incorrect password' });
+
+  try {
+    // Remove existing token
+    await Delete.deleteOne({ user: req.user.id });
+
+    // Save new delete request token
+    const saved = await new Delete({ user: req.user.id }).save();
+
+    // Prepare and send an email message
+    const rendered = await prepareAccountDeleteEmail(saved.id);
+    const mail = { from: process.env.SMTP_EMAIL, to: req.user.email, ...rendered };
+
+    await transporter.sendMail(mail);
+    res.status(200).json({ message: 'Email sent' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  getTickets,
+  assignTicket,
+  getTrip,
+  updateTrip,
+  changePassword,
+  deleteAccount,
+};
