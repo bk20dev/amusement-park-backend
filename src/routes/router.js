@@ -9,6 +9,7 @@ const api = express.Router();
 const signin = require('../controllers/auth/signin');
 const signup = require('../controllers/auth/signup');
 const recover = require('../controllers/auth/recover');
+const deleteAccount = require('../controllers/auth/delete');
 
 auth.post('/signup', only.signedOut, signup.signup);
 auth.post('/verification', only.signedOut, signup.verify);
@@ -16,6 +17,7 @@ auth.post('/signin', only.signedOut, signin.signin);
 auth.get('/signout', only.signedIn, signin.signout);
 auth.get('/reset', recover.sendEmail);
 auth.post('/reset', recover.resetPassword);
+auth.post('/delete', deleteAccount);
 
 // API
 const account = require('./api/account');

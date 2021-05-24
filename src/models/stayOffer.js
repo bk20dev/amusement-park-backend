@@ -25,6 +25,6 @@ const stayOfferSchema = mongoose.Schema({
   },
 });
 
-const StayOffer = mongoose.model('stayOffer', stayOfferSchema);
+const StayOffer = mongoose.model('stayoffer', stayOfferSchema);
 
 module.exports = StayOffer;
