@@ -3,11 +3,13 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const regex = require('../../helpers/regex');
 const mongoReducer = require('../../helpers/mongoReducer');
+const prepareEmailChangeEmail = require('../../emails/generators/account/changeEmail');
 const prepareAccountDeleteEmail = require('../../emails/generators/account/delete');
 const transporter = require('../../connection/mail');
 const Booking = require('../../models/ticketBooking');
 const User = require('../../models/user');
 const Attraction = require('../../models/attraction');
+const EmailChange = require('../../models/emailChange');
 const Delete = require('../../models/delete');
 
 /**
@@ -154,6 +156,45 @@ const changePassword = async (req, res, next) => {
   }
 };
 
+const changeEmail = async (req, res, next) => {
+  const password = req.body.password;
+  const email = req.body.email;
+
+  // Validate incoming data
+  const errors = [];
+  if (!regex.password.test(password)) errors.push('password');
+  if (!regex.email.test(email)) errors.push('email');
+
+  if (errors.length)
+    return res
+      .status(400)
+      .json({ message: `Validation failed for \`${errors.join('`, `')}\`` });
+
+  // Check if given email is not a duplicate
+  const exists = await User.exists({ email });
+  if (exists) return res.status(409).json({ message: 'User already exists' });
+
+  // Check if given password matches current password
+  if (req.user.isPasswordCorrect(password))
+    return res.status(401).json({ message: 'Incorrect password' });
+
+  try {
+    // Create email change token
+    await EmailChange.deleteOne({ user: req.user.id }); // Remove token if exists
+    const change = await new EmailChange({ user: req.user.id, new: email }).save();
+
+    // Send confirmation email
+    const rendered = await prepareEmailChangeEmail(change.id);
+    const mail = { from: process.env.SMTP_EMAIL, to: email, ...rendered };
+
+    await transporter.sendMail(mail);
+
+    res.status(200).json({ message: 'Email has been sent' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 /**
  * Sends account delete confirmation email
  * @param {express.Request} req
@@ -167,10 +208,8 @@ const deleteAccount = async (req, res, next) => {
     return res.status(401).json({ message: 'Incorrect password' });
 
   try {
-    // Remove existing token
-    await Delete.deleteOne({ user: req.user.id });
-
-    // Save new delete request token
+    // Save a delete request token
+    await Delete.deleteOne({ user: req.user.id }); // Remove token if exists
     const saved = await new Delete({ user: req.user.id }).save();
 
     // Prepare and send an email message
@@ -190,5 +229,6 @@ module.exports = {
   getTrip,
   updateTrip,
   changePassword,
+  changeEmail,
   deleteAccount,
 };

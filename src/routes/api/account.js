@@ -5,6 +5,7 @@ const {
   getTrip,
   updateTrip,
   changePassword,
+  changeEmail,
   deleteAccount,
 } = require('../../controllers/api/account');
 
@@ -18,6 +19,7 @@ router.put('/trip', updateTrip);
 
 // Settings
 router.put('/password', changePassword);
+router.put('/email', changeEmail);
 router.delete('/', deleteAccount);
 
 module.exports = router;
