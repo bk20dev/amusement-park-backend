@@ -157,28 +157,17 @@ const changePassword = async (req, res, next) => {
 };
 
 const changeEmail = async (req, res, next) => {
-  const password = req.body.password;
   const email = req.body.email;
 
   // Validate incoming data
-  const errors = [];
-  if (!regex.password.test(password)) errors.push('password');
-  if (!regex.email.test(email)) errors.push('email');
-
-  if (errors.length)
-    return res
-      .status(400)
-      .json({ message: `Validation failed for \`${errors.join('`, `')}\`` });
-
-  // Check if given email is not a duplicate
-  const exists = await User.exists({ email });
-  if (exists) return res.status(409).json({ message: 'User already exists' });
-
-  // Check if given password matches current password
-  if (req.user.isPasswordCorrect(password))
-    return res.status(401).json({ message: 'Incorrect password' });
+  if (!regex.email.test(email))
+    return res.status(400).json({ message: 'Validation failed for `email`' });
 
   try {
+    // Check if given email is not a duplicate
+    const exists = await User.exists({ email });
+    if (exists) return res.status(409).json({ message: 'User already exists' });
+
     // Create email change token
     await EmailChange.deleteOne({ user: req.user.id }); // Remove token if exists
     const change = await new EmailChange({ user: req.user.id, new: email }).save();
@@ -190,6 +179,36 @@ const changeEmail = async (req, res, next) => {
     await transporter.sendMail(mail);
 
     res.status(200).json({ message: 'Email has been sent' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const confirmEmailChange = async (req, res, next) => {
+  const password = req.body.password;
+  const token = req.query.token;
+
+  // Check if given token is valid
+  if (!token || !mongoose.isValidObjectId(token))
+    return res.status(400).json({ message: 'Invalid ObjectId' });
+
+  try {
+    const request = await EmailChange.findById(token).populate('user');
+    if (!request) return res.status(404).json({ message: 'Not Found' });
+
+    // Check password
+    const user = request.user;
+    if (!user.isPasswordCorrect(password))
+      return res.status(401).json({ message: 'Incorrect password' });
+
+    // Check if given email is not a duplicate
+    const exists = await User.exists({ email: request.new });
+    if (exists) return res.status(409).json({ message: 'User already exists' });
+
+    // Update email
+    await user.updateOne({ email: request.new });
+
+    res.status(200).json({ message: 'Email updated' });
   } catch (error) {
     next(error);
   }
@@ -230,5 +249,6 @@ module.exports = {
   updateTrip,
   changePassword,
   changeEmail,
+  confirmEmailChange,
   deleteAccount,
 };

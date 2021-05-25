@@ -6,6 +6,7 @@ const emailChangeSchema = mongoose.Schema({
     type: mongoose.Types.ObjectId,
     required: true,
     unique: true,
+    ref: 'users',
   },
   new: {
     type: String,
