@@ -9,6 +9,8 @@ const api = express.Router();
 const signin = require('../controllers/auth/signin');
 const signup = require('../controllers/auth/signup');
 const recover = require('../controllers/auth/recover');
+const deleteAccount = require('../controllers/auth/delete');
+const { confirmEmailChange } = require('../controllers/api/account');
 
 auth.post('/signup', only.signedOut, signup.signup);
 auth.post('/verification', only.signedOut, signup.verify);
@@ -16,13 +18,15 @@ auth.post('/signin', only.signedOut, signin.signin);
 auth.get('/signout', only.signedIn, signin.signout);
 auth.get('/reset', recover.sendEmail);
 auth.post('/reset', recover.resetPassword);
+auth.post('/delete', deleteAccount);
+auth.post('/email', confirmEmailChange);
 
 // API
 const account = require('./api/account');
 const map = require('./api/map');
 const restaurant = require('./api/restaurant');
 
-api.use('/account', account);
+api.use('/account', only.signedIn, account);
 api.use('/map', map);
 api.use('/restaurant', restaurant);
 

@@ -13,15 +13,7 @@ const stayBookingSchema = mongoose.Schema({
     default: new Date().getTime(),
   },
   accommodations: {
-    type: [
-      {
-        id: {
-          type: mongoose.Types.ObjectId,
-          required: true,
-          ref: 'offers',
-        },
-      },
-    ],
+    type: [mongoose.Types.ObjectId],
     required: true,
   },
   code: {
@@ -32,6 +24,6 @@ const stayBookingSchema = mongoose.Schema({
   },
 });
 
-const StayBooking = mongoose.model('stayBookings', stayBookingSchema);
+const StayBooking = mongoose.model('staybookings', stayBookingSchema);
 
 module.exports = StayBooking;

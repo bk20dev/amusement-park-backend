@@ -1,17 +1,6 @@
 const mongoose = require('mongoose');
 const regex = require('../helpers/regex');
 
-const ticketSchema = mongoose.Schema(
-  {
-    offer: {
-      type: mongoose.Types.ObjectId,
-      required: true,
-      ref: 'offers',
-    },
-  },
-  { _id: false }
-);
-
 const ticketBookingSchema = mongoose.Schema({
   email: {
     type: String,
@@ -29,7 +18,7 @@ const ticketBookingSchema = mongoose.Schema({
     default: new Date().getTime(),
   },
   tickets: {
-    type: [ticketSchema],
+    type: [mongoose.Types.ObjectId],
     required: true,
   },
   code: {
@@ -40,6 +29,6 @@ const ticketBookingSchema = mongoose.Schema({
   },
 });
 
-const TicketBooking = mongoose.model('ticketBookings', ticketBookingSchema);
+const TicketBooking = mongoose.model('ticketbookings', ticketBookingSchema);
 
 module.exports = TicketBooking;
