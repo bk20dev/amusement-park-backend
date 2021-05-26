@@ -74,9 +74,7 @@ const assignTicket = async (req, res, next) => {
  */
 const getTrip = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id, { trip: true, _id: false }).populate(
-      'trip'
-    );
+    const user = await User.findById(req.user.id, { trip: true }).populate('trip');
     const attractions = user.trip.map(mongoReducer);
     res.json(attractions);
   } catch (error) {

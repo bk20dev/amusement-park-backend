@@ -17,16 +17,12 @@ const userSchema = mongoose.Schema({
   },
   favorites: {
     type: [mongoose.Schema.Types.ObjectId],
+    ref: 'attractions',
     required: true,
   },
   trip: {
-    type: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'attractions',
-        required: true,
-      },
-    ],
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'attractions',
     required: true,
   },
 });
