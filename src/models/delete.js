@@ -5,6 +5,7 @@ const deleteSchema = mongoose.Schema({
     type: mongoose.Types.ObjectId,
     required: true,
     unique: true,
+    ref: 'users',
   },
 });
 

@@ -17,6 +17,9 @@ const userSchema = mongoose.Schema({
     required: true,
     validate: { validator: (value) => regex.password.test(value) },
   },
+  admin: {
+    type: Boolean,
+  },
   favorites: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'attractions',
