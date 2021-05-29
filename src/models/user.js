@@ -4,7 +4,6 @@ const regex = require('../helpers/regex');
 const TicketBooking = require('./ticketBooking');
 const EmailChange = require('./emailChange');
 const Reset = require('./reset');
-const Delete = require('./delete');
 
 const userSchema = mongoose.Schema({
   email: {
@@ -56,6 +55,6 @@ userSchema.methods.isPasswordCorrect = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
 
-const user = mongoose.model('users', userSchema);
+const User = mongoose.model('users', userSchema);
 
-module.exports = user;
+module.exports = User;

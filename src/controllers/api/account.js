@@ -163,7 +163,8 @@ const changeEmail = async (req, res, next) => {
 
   try {
     // Check if given email is not a duplicate
-    const exists = await User.exists({ email });
+    const exists =
+      (await User.exists({ email })) || (await EmailChange.exists({ new: email }));
     if (exists) return res.status(409).json({ message: 'User already exists' });
 
     // Create email change token

@@ -2,8 +2,16 @@ const mongoose = require('mongoose');
 const clamp = require('../utils/clamp');
 
 const ticketOfferSchema = mongoose.Schema({
-  name: { type: String, required: true, unique: true },
-  description: { type: String, required: false, default: null },
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  description: {
+    type: String,
+    required: false,
+    default: null,
+  },
   price: {
     type: Number,
     required: true,
@@ -17,7 +25,10 @@ const ticketOfferSchema = mongoose.Schema({
     },
     validate: { validator: (v) => v >= 0 },
   },
-  image: { type: String, required: true },
+  image: {
+    type: String,
+    required: true,
+  },
 });
 
 ticketOfferSchema.pre('save', function (next) {
