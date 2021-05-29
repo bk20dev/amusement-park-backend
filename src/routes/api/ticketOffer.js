@@ -1,9 +1,8 @@
-const express = require('express');
+const router = require('express').Router();
 const common = require('../../controllers/common/common');
-const Offer = require('../../models/ticketOffer');
 const mongoReducer = require('../../helpers/mongoReducer');
-
-const router = express.Router();
+const only = require('../../middleware/secured');
+const Offer = require('../../models/ticketOffer');
 
 const customReducer = (initial) => {
   const { discountedPrice, ...rest } = initial;
@@ -22,8 +21,8 @@ const fullReducer = (value) => customReducer(mongoReducer(value));
 
 router.get('/', common.getAll(Offer, fullReducer));
 router.get('/:id', common.getOne(Offer, fullReducer));
-router.post('/', common.create(Offer));
-router.put('/:id', common.update(Offer));
-router.delete('/:id', common.deleteOne(Offer, fullReducer));
+router.post('/', only.isAdmin, common.create(Offer));
+router.put('/:id', only.isAdmin, common.update(Offer));
+router.delete('/:id', only.isAdmin, common.deleteOne(Offer));
 
 module.exports = router;

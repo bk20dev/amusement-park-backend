@@ -31,7 +31,7 @@ const signedOut = (req, res, next) => {
 const isAdmin = (req, res, next) => {
   console.log(req.user);
   if (req.user?.admin === true) return next();
-  res.status(403).json({ message: 'Insufficient privileges' });
+  res.status(403).json({ message: 'Access denied' });
 };
 
 module.exports = { signedIn, signedOut, isAdmin };
