@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const mongoReducer = require('../../helpers/mongoReducer');
 const Attraction = require('../../models/attraction');
+const User = require('../../models/user');
 
 /**
  * Returns list of all attractions marked as favorite
@@ -9,14 +10,10 @@ const Attraction = require('../../models/attraction');
  * @param {express.NextFunction} next
  */
 const all = async (req, res, next) => {
-  const favorites = req.user.favorites;
-
   try {
-    // Find all attractions
-    const attractions = await Attraction.find({ _id: { $in: favorites } });
-    const reduced = Object.values(attractions).map((attraction) =>
-      mongoReducer(attraction)
-    );
+    const id = req.user.id;
+    const user = await User.findById(id, { favorites: true }).populate('favorites');
+    const reduced = user.favorites.map(mongoReducer);
 
     res.json(reduced);
   } catch (error) {

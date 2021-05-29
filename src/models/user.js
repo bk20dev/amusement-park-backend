@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-
 const regex = require('../helpers/regex');
+const TicketBooking = require('./ticketBooking');
+const EmailChange = require('./emailChange');
+const Reset = require('./reset');
 
 const userSchema = mongoose.Schema({
   email: {
@@ -17,16 +19,12 @@ const userSchema = mongoose.Schema({
   },
   favorites: {
     type: [mongoose.Schema.Types.ObjectId],
+    ref: 'attractions',
     required: true,
   },
   trip: {
-    type: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'attractions',
-        required: true,
-      },
-    ],
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'attractions',
     required: true,
   },
 });
@@ -36,10 +34,27 @@ userSchema.pre('save', function (next) {
   next();
 });
 
+userSchema.pre('deleteOne', { document: true }, async function (next) {
+  const id = this._id;
+
+  try {
+    // Unlink tickets
+    await TicketBooking.updateMany({ user: id }, { $unset: { user: 1 } });
+
+    // Remove generated tokens
+    await EmailChange.deleteOne({ user: id }); // Email change
+    await Reset.deleteOne({ user: id }); // Account reset (recovery)
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 userSchema.methods.isPasswordCorrect = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
 
-const user = mongoose.model('users', userSchema);
+const User = mongoose.model('users', userSchema);
 
-module.exports = user;
+module.exports = User;

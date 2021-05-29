@@ -24,20 +24,20 @@ auth.post('/email', confirmEmailChange);
 // API
 const account = require('./api/account');
 const map = require('./api/map');
-const restaurant = require('./api/restaurant');
 
 api.use('/account', only.signedIn, account);
 api.use('/map', map);
-api.use('/restaurant', restaurant);
 
 const ticketOffer = require('./api/ticketOffer');
 const ticketBooking = require('./api/ticketBooking');
 const stayOffer = require('./api/stayOffer');
 const stayBooking = require('./api/stayBooking');
+const restaurantOffer = require('./api/restaurantOffer');
 
 api.use('/tickets/bookings', ticketBooking);
 api.use('/tickets', ticketOffer);
 api.use('/stay/bookings', stayBooking);
 api.use('/stay', stayOffer);
+api.use('/restaurant', restaurantOffer);
 
 module.exports = { auth, api };
