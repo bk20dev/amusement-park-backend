@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-
 const regex = require('../helpers/regex');
+const TicketBooking = require('./ticketBooking');
+const EmailChange = require('./emailChange');
+const Reset = require('./reset');
+const Delete = require('./delete');
 
 const userSchema = mongoose.Schema({
   email: {
@@ -30,6 +33,23 @@ const userSchema = mongoose.Schema({
 userSchema.pre('save', function (next) {
   this.password = bcrypt.hashSync(this.password, 6);
   next();
+});
+
+userSchema.pre('deleteOne', { document: true }, async function (next) {
+  const id = this._id;
+
+  try {
+    // Unlink tickets
+    await TicketBooking.updateMany({ user: id }, { $unset: { user: 1 } });
+
+    // Remove generated tokens
+    await EmailChange.deleteOne({ user: id }); // Email change
+    await Reset.deleteOne({ user: id }); // Account reset (recovery)
+
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 userSchema.methods.isPasswordCorrect = function (password) {

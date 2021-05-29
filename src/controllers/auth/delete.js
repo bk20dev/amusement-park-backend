@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Delete = require('../../models/delete');
-const TicketBooking = require('../../models/ticketBooking');
 const User = require('../../models/user');
 
 const deleteAccount = async (req, res, next) => {
@@ -16,13 +15,11 @@ const deleteAccount = async (req, res, next) => {
     if (!request) return res.status(404).json({ message: 'Not Found' });
 
     // Remove user account
-    await User.deleteOne({ _id: request.user });
+    const user = await User.findOne({ _id: request.user });
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    // Unlink tickets
-    await TicketBooking.updateMany({ user: request.user }, { $unset: { user: 1 } });
-
-    // Remove token
-    await Delete.deleteOne();
+    await user.deleteOne();
+    await request.deleteOne(); // Also remove account delete token
 
     res.status(200).json({ message: 'Account deleted' });
   } catch (error) {

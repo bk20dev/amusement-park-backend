@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const User = require('./user');
 
 const locationSchema = mongoose.Schema(
   { lat: { type: Number, required: true }, lng: { type: Number, required: true } },
@@ -26,6 +27,16 @@ const attractionSchema = mongoose.Schema({
     type: locationSchema,
     required: true,
   },
+});
+
+attractionSchema.pre('remove', async function (next) {
+  try {
+    // Drop all references to this attraction
+    await User.updateMany({}, { $pullAll: { favorites: [this.id], trip: [this.id] } });
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 const attraction = mongoose.model('attractions', attractionSchema);
